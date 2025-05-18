@@ -107,6 +107,34 @@
         </div>
     </div>
 
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- New Quote Card -->
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+            <div class="p-5">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-file-invoice-dollar text-3xl text-blue-600"></i>
+                    </div>
+                    <div class="ml-5 w-0 flex-1">
+                        <dl>
+                            <dt class="text-sm font-medium text-gray-500 truncate">
+                                Create New Quote
+                            </dt>
+                            <dd class="flex items-baseline">
+                                <div class="text-2xl font-semibold text-gray-900">
+                                    <a href="{{ url_for('admin_new_quote') }}" 
+                                       class="text-blue-600 hover:text-blue-900">
+                                        Create Quote
+                                    </a>
+                                </div>
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="bg-white rounded-lg shadow">
         <div class="p-6 border-b">
             <h2 class="text-2xl font-bold">Quote Requests</h2>
@@ -216,9 +244,8 @@
     <div class="p-6 border-b flex justify-between items-center">
         <h2 class="text-2xl font-bold">Recent Shipments</h2>
         <div class="flex space-x-3">
-            <a href="{{ url_for('admin_shipments') }}" 
-               class="px-4 py-2 bg-blue-50 text-blue-700 rounded-md hover:bg-blue-100 transition-colors duration-200 flex items-center">
-                <i class="fas fa-truck mr-2"></i>View All Shipments
+            <a href="{{ url_for('admin_shipments') }}" class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50">
+                <i class="fas fa-truck mr-2"></i>Shipments
             </a>
             <a href="{{ url_for('new_shipment') }}" 
                class="px-4 py-2 bg-green-50 text-green-700 rounded-md hover:bg-green-100 transition-colors duration-200 flex items-center">

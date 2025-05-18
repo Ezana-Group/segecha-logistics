@@ -1,0 +1,388 @@
+{% extends "base.html" %}
+
+{% block title %}New Quote - Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<style>
+    .map-container {
+        height: 400px;
+        margin-bottom: 1rem;
+    }
+    .location-suggestions {
+        position: absolute;
+        z-index: 1000;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.375rem;
+        width: 100%;
+        max-height: 200px;
+        overflow-y: auto;
+        display: none;
+    }
+    .location-suggestions.active {
+        display: block;
+    }
+    .location-suggestion {
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+    }
+    .location-suggestion:hover {
+        background-color: #f3f4f6;
+    }
+    .location-input-container {
+        position: relative;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow">
+    <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between py-4">
+            <span class="text-xl font-bold text-brand-primary">Admin Dashboard</span>
+            <nav class="flex space-x-4">
+                <a href="{{ url_for('admin_dashboard') }}" 
+                   class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50">
+                    <i class="fas fa-home mr-2"></i>Dashboard
+                </a>
+                <a href="{{ url_for('admin_shipments') }}" 
+                   class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50">
+                    <i class="fas fa-truck mr-2"></i>Shipments
+                </a>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between">
+            <h1 class="text-2xl font-semibold text-gray-900">Create New Quote</h1>
+            <a href="{{ url_for('admin_dashboard') }}" 
+               class="text-blue-600 hover:text-blue-900">
+                Back to Dashboard
+            </a>
+        </div>
+
+        <form method="POST" class="mt-8 bg-white shadow rounded-lg divide-y divide-gray-200">
+            <!-- Customer Information -->
+            <div class="p-6">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Customer Information</h2>
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                        <input type="text" name="name" id="name" required
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="company" class="block text-sm font-medium text-gray-700">Company (Optional)</label>
+                        <input type="text" name="company" id="company"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" name="email" id="email" required
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="phone" class="block text-sm font-medium text-gray-700">Phone</label>
+                        <input type="tel" name="phone" id="phone" required
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pickup Location -->
+            <div class="p-6">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Pickup Location</h2>
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                    <div class="sm:col-span-2">
+                        <label for="pickup_country" class="block text-sm font-medium text-gray-700">Country</label>
+                        <select name="pickup_country" id="pickup_country" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Select Country</option>
+                            {% for country in countries %}
+                            <option value="{{ country }}">{{ country }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label for="pickup_city" class="block text-sm font-medium text-gray-700">City</label>
+                        <select name="pickup_city" id="pickup_city" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Select City</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label for="pickup_address" class="block text-sm font-medium text-gray-700">Address</label>
+                        <input type="text" name="pickup_address" id="pickup_address" required
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <input type="hidden" name="pickup_lat" id="pickup_lat">
+                    <input type="hidden" name="pickup_lng" id="pickup_lng">
+                </div>
+            </div>
+
+            <!-- Delivery Location -->
+            <div class="p-6">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Delivery Location</h2>
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                    <div class="sm:col-span-2">
+                        <label for="dropoff_country" class="block text-sm font-medium text-gray-700">Country</label>
+                        <select name="dropoff_country" id="dropoff_country" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Select Country</option>
+                            {% for country in countries %}
+                            <option value="{{ country }}">{{ country }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label for="dropoff_city" class="block text-sm font-medium text-gray-700">City</label>
+                        <select name="dropoff_city" id="dropoff_city" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Select City</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label for="dropoff_address" class="block text-sm font-medium text-gray-700">Address</label>
+                        <input type="text" name="dropoff_address" id="dropoff_address" required
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <input type="hidden" name="dropoff_lat" id="dropoff_lat">
+                    <input type="hidden" name="dropoff_lng" id="dropoff_lng">
+                    <input type="hidden" name="estimated_distance" id="estimated_distance">
+                </div>
+            </div>
+
+            <!-- Cargo Details -->
+            <div class="p-6">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Cargo Details</h2>
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                    <div class="sm:col-span-6">
+                        <label for="cargo_description" class="block text-sm font-medium text-gray-700">Cargo Description</label>
+                        <textarea name="cargo_description" id="cargo_description" rows="3" required
+                                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                    </div>
+                    <div class="sm:col-span-3">
+                        <label for="preferred_date" class="block text-sm font-medium text-gray-700">Preferred Date (Optional)</label>
+                        <input type="date" name="preferred_date" id="preferred_date"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div class="sm:col-span-6">
+                        <label for="additional_notes" class="block text-sm font-medium text-gray-700">Additional Notes (Optional)</label>
+                        <textarea name="additional_notes" id="additional_notes" rows="2"
+                                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Shipment Option -->
+            <div class="p-6">
+                <div class="flex items-center">
+                    <input type="checkbox" name="create_shipment" id="create_shipment" value="yes"
+                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="create_shipment" class="ml-2 block text-sm text-gray-900">
+                        Create shipment from this quote
+                    </label>
+                </div>
+            </div>
+
+            <!-- Map -->
+            <div class="p-6">
+                <div id="map" class="map-container rounded-lg border border-gray-300"></div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="p-6">
+                <button type="submit" 
+                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Create Quote
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+// Initialize map
+let map, pickupMarker, dropoffMarker, routeLayer;
+
+function initMap() {
+    map = L.map('map').setView([0, 35], 5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+}
+
+// Handle country/city selection
+document.getElementById('pickup_country').addEventListener('change', function() {
+    const country = this.value;
+    const citySelect = document.getElementById('pickup_city');
+    citySelect.innerHTML = '<option value="">Select City</option>';
+    
+    if (country) {
+        fetch(`/get_cities/${country}`)
+            .then(response => response.json())
+            .then(cities => {
+                cities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    option.textContent = city;
+                    citySelect.appendChild(option);
+                });
+            });
+    }
+});
+
+document.getElementById('dropoff_country').addEventListener('change', function() {
+    const country = this.value;
+    const citySelect = document.getElementById('dropoff_city');
+    citySelect.innerHTML = '<option value="">Select City</option>';
+    
+    if (country) {
+        fetch(`/get_cities/${country}`)
+            .then(response => response.json())
+            .then(cities => {
+                cities.forEach(city => {
+                    const option = document.createElement('option');
+                    option.value = city;
+                    option.textContent = city;
+                    citySelect.appendChild(option);
+                });
+            });
+    }
+});
+
+// Handle city selection
+document.getElementById('pickup_city').addEventListener('change', function() {
+    const country = document.getElementById('pickup_country').value;
+    const city = this.value;
+    
+    if (country && city) {
+        fetch(`/get_city_coords/${country}/${city}`)
+            .then(response => response.json())
+            .then(coords => {
+                if (coords.lat && coords.lng) {
+                    document.getElementById('pickup_lat').value = coords.lat;
+                    document.getElementById('pickup_lng').value = coords.lng;
+                    
+                    if (pickupMarker) {
+                        pickupMarker.setLatLng([coords.lat, coords.lng]);
+                    } else {
+                        pickupMarker = L.marker([coords.lat, coords.lng]).addTo(map);
+                    }
+                    
+                    updateRoute();
+                }
+            });
+    }
+});
+
+document.getElementById('dropoff_city').addEventListener('change', function() {
+    const country = document.getElementById('dropoff_country').value;
+    const city = this.value;
+    
+    if (country && city) {
+        fetch(`/get_city_coords/${country}/${city}`)
+            .then(response => response.json())
+            .then(coords => {
+                if (coords.lat && coords.lng) {
+                    document.getElementById('dropoff_lat').value = coords.lat;
+                    document.getElementById('dropoff_lng').value = coords.lng;
+                    
+                    if (dropoffMarker) {
+                        dropoffMarker.setLatLng([coords.lat, coords.lng]);
+                    } else {
+                        dropoffMarker = L.marker([coords.lat, coords.lng]).addTo(map);
+                    }
+                    
+                    updateRoute();
+                }
+            });
+    }
+});
+
+async function updateRoute() {
+    const pickupLat = document.getElementById('pickup_lat').value;
+    const pickupLng = document.getElementById('pickup_lng').value;
+    const dropoffLat = document.getElementById('dropoff_lat').value;
+    const dropoffLng = document.getElementById('dropoff_lng').value;
+    
+    if (pickupLat && pickupLng && dropoffLat && dropoffLng) {
+        try {
+            const response = await fetch(`/get_route_info/${pickupLng}/${pickupLat}/${dropoffLng}/${dropoffLat}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                document.getElementById('estimated_distance').value = data.distance;
+                
+                if (routeLayer) {
+                    map.removeLayer(routeLayer);
+                }
+                
+                const coordinates = decodePolyline(data.geometry);
+                routeLayer = L.polyline(coordinates, {
+                    color: '#3B82F6',
+                    weight: 4,
+                    opacity: 0.7
+                }).addTo(map);
+                
+                map.fitBounds(routeLayer.getBounds(), { padding: [50, 50] });
+            }
+        } catch (error) {
+            console.error('Error fetching route:', error);
+        }
+    }
+}
+
+// Polyline decoding function
+function decodePolyline(str, precision) {
+    var index = 0,
+        lat = 0,
+        lng = 0,
+        coordinates = [],
+        shift = 0,
+        result = 0,
+        byte = null,
+        latitude_change,
+        longitude_change,
+        factor = Math.pow(10, precision || 5);
+
+    while (index < str.length) {
+        byte = null;
+        shift = 0;
+        result = 0;
+
+        do {
+            byte = str.charCodeAt(index++) - 63;
+            result |= (byte & 0x1f) << shift;
+            shift += 5;
+        } while (byte >= 0x20);
+
+        latitude_change = ((result & 1) ? ~(result >> 1) : (result >> 1));
+        shift = result = 0;
+
+        do {
+            byte = str.charCodeAt(index++) - 63;
+            result |= (byte & 0x1f) << shift;
+            shift += 5;
+        } while (byte >= 0x20);
+
+        longitude_change = ((result & 1) ? ~(result >> 1) : (result >> 1));
+        lat += latitude_change;
+        lng += longitude_change;
+        coordinates.push([lat / factor, lng / factor]);
+    }
+
+    return coordinates;
+}
+
+// Initialize map when the page loads
+document.addEventListener('DOMContentLoaded', initMap);
+</script>
+{% endblock %} 

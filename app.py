@@ -294,6 +294,75 @@ def delete_shipment(id):
         flash(f'Error deleting shipment: {str(e)}', 'error')
     return redirect(url_for('admin_shipments'))
 
+@app.route('/admin/new-quote', methods=['GET', 'POST'])
+def admin_new_quote():
+    if request.method == 'POST':
+        try:
+            preferred_date = None
+            if request.form.get('preferred_date'):
+                preferred_date = datetime.strptime(request.form.get('preferred_date'), '%Y-%m-%d').date()
+
+            pickup_location = f"{request.form.get('pickup_address')}, {request.form.get('pickup_city')}, {request.form.get('pickup_country')}"
+            dropoff_location = f"{request.form.get('dropoff_address')}, {request.form.get('dropoff_city')}, {request.form.get('dropoff_country')}"
+
+            pickup_lat = float(request.form.get('pickup_lat', 0))
+            pickup_lng = float(request.form.get('pickup_lng', 0))
+            dropoff_lat = float(request.form.get('dropoff_lat', 0))
+            dropoff_lng = float(request.form.get('dropoff_lng', 0))
+            estimated_distance = float(request.form.get('estimated_distance', 0))
+
+            quote_request = QuoteRequest(
+                name=request.form['name'],
+                company=request.form.get('company'),
+                email=request.form['email'],
+                phone=request.form['phone'],
+                pickup_location=pickup_location,
+                pickup_lat=pickup_lat,
+                pickup_lng=pickup_lng,
+                dropoff_location=dropoff_location,
+                dropoff_lat=dropoff_lat,
+                dropoff_lng=dropoff_lng,
+                estimated_distance=estimated_distance,
+                cargo_description=request.form['cargo_description'],
+                preferred_date=preferred_date,
+                additional_notes=request.form.get('additional_notes'),
+                reviewed=True  # Mark as reviewed since it's created by admin
+            )
+            db.session.add(quote_request)
+            db.session.commit()
+            
+            # Optionally create a shipment directly from this quote
+            if request.form.get('create_shipment') == 'yes':
+                shipment = Shipment(
+                    quote_request_id=quote_request.id,
+                    customer_name=quote_request.name,
+                    pickup_location=quote_request.pickup_location,
+                    pickup_lat=quote_request.pickup_lat,
+                    pickup_lng=quote_request.pickup_lng,
+                    dropoff_location=quote_request.dropoff_location,
+                    dropoff_lat=quote_request.dropoff_lat,
+                    dropoff_lng=quote_request.dropoff_lng,
+                    cargo_description=quote_request.cargo_description,
+                    status='Pending'
+                )
+                db.session.add(shipment)
+                db.session.commit()
+                flash('Quote created and shipment initiated!', 'success')
+                return redirect(url_for('admin_shipments'))
+            
+            flash('Quote created successfully!', 'success')
+            return redirect(url_for('admin_dashboard'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error creating quote: {str(e)}', 'error')
+            return redirect(url_for('admin_new_quote'))
+    
+    countries = list(EAST_AFRICAN_CITIES.keys())
+    return render_template('admin/new_quote.html', 
+                         now=datetime.now(), 
+                         countries=countries, 
+                         EAST_AFRICAN_CITIES=EAST_AFRICAN_CITIES)
+
 # Remove or comment out the /admin_login route and any related logic
 # @app.route('/admin_login', methods=['GET', 'POST'])
 # def admin_login():
