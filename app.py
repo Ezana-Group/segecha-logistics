@@ -178,7 +178,8 @@ def test():
 
 @app.route('/admin/shipments')
 def admin_shipments():
-    return "<h1>Shipments Page (Coming Soon)</h1>"
+    shipments = Shipment.query.order_by(Shipment.created_at.desc()).all()
+    return render_template('admin/admin_shipments.html', shipments=shipments, now=datetime.now())
 
 @app.route('/admin/new-shipment')
 def new_shipment():
