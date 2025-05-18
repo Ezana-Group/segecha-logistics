@@ -455,9 +455,20 @@ def add_cache_control(response):
     # app.run(debug=True) 
 # if __name__ == "__main__":
     #app.run(host="0.0.0.0", port=10000, debug=True)
+
 if __name__ == '__main__':
     with app.app_context():
         from flask_migrate import upgrade
+        from database import Admin
+        
         upgrade()  # Automatically applies any pending DB migrations
-
+        
+        if not Admin.query.filter_by(email="admin@segecha.com").first():
+            admin = Admin(email="admin@segecha.com")
+            admin.set_password("admin123")
+            db.session.add(admin)
+            db.session.commit()
+            print("✅ Admin user created.")
+        else:
+            print("ℹ️ Admin user already exists.")
     app.run(host="0.0.0.0", port=10000, debug=True)
