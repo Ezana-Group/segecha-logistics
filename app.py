@@ -69,15 +69,15 @@ def contact():
 
 @app.route('/privacy-policy')
 def privacy_policy():
-    return render_template('legal/privacy_policy.html', now=datetime.now())
+    return render_template('templates/legal/privacy_policy.html', now=datetime.now())
 
 @app.route('/terms-of-service')
 def terms_of_service():
-    return render_template('legal/terms_of_service.html', now=datetime.now())
+    return render_template('templates/legal/terms_of_service.html', now=datetime.now())
 
 @app.route('/cookie-policy')
 def cookie_policy():
-    return render_template('legal/cookie_policy.html', now=datetime.now())
+    return render_template('templates/legal/cookie_policy.html', now=datetime.now())
 
 @app.route('/track', methods=['GET', 'POST'])
 def track():
