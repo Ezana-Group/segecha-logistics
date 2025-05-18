@@ -12,7 +12,7 @@ class Config:
     # Fix legacy Heroku-style URLs
     raw_db_url = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'instance', 'database.db')
     if raw_db_url.startswith("postgres://"):
-        raw_db_url = raw_db_url.replace("postgres://", "postgresql://")
+        raw_db_url = raw_db_url.replace("postgres://", "postgresql+psycopg://")
     
     SQLALCHEMY_DATABASE_URI = raw_db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
