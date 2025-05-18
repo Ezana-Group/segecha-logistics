@@ -127,8 +127,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label for="pickup_country" class="block text-sm font-medium text-gray-700">Country *</label>
-                        <select name="pickup_country" id="pickup_country" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <select name="pickup_country" id="pickup_country" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                             <option value="">Select Country</option>
                             {% for country in countries %}
                             <option value="{{ country }}" {% if country == pickup_country %}selected{% endif %}>{{ country }}</option>
@@ -137,8 +136,7 @@
                     </div>
                     <div>
                         <label for="pickup_city" class="block text-sm font-medium text-gray-700">City *</label>
-                        <select name="pickup_city" id="pickup_city" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <select name="pickup_city" id="pickup_city" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                             <option value="">Select City</option>
                             {% if pickup_country %}
                                 {% for city in EAST_AFRICAN_CITIES[pickup_country].keys() %}
@@ -147,15 +145,15 @@
                             {% endif %}
                         </select>
                     </div>
-                    <div>
+                    <div class="relative">
                         <label for="pickup_address" class="block text-sm font-medium text-gray-700">Address *</label>
-                        <input type="text" name="pickup_address" id="pickup_address" required
-                               value="{{ pickup_address }}"
-                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <input type="text" name="pickup_address" id="pickup_address" required value="{{ pickup_address }}" autocomplete="off" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" oninput="searchAddress('pickup')">
+                        <div id="pickup_suggestions" class="location-suggestions"></div>
                     </div>
                 </div>
                 <input type="hidden" name="pickup_lat" id="pickup_lat" value="{{ quote.pickup_lat }}">
                 <input type="hidden" name="pickup_lng" id="pickup_lng" value="{{ quote.pickup_lng }}">
+                <button type="button" class="mt-2 px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200" onclick="enablePinOnMap('pickup')">Pin on Map</button>
             </div>
 
             <!-- Dropoff Location -->
@@ -164,8 +162,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label for="dropoff_country" class="block text-sm font-medium text-gray-700">Country *</label>
-                        <select name="dropoff_country" id="dropoff_country" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <select name="dropoff_country" id="dropoff_country" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                             <option value="">Select Country</option>
                             {% for country in countries %}
                             <option value="{{ country }}" {% if country == dropoff_country %}selected{% endif %}>{{ country }}</option>
@@ -174,8 +171,7 @@
                     </div>
                     <div>
                         <label for="dropoff_city" class="block text-sm font-medium text-gray-700">City *</label>
-                        <select name="dropoff_city" id="dropoff_city" required
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <select name="dropoff_city" id="dropoff_city" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                             <option value="">Select City</option>
                             {% if dropoff_country %}
                                 {% for city in EAST_AFRICAN_CITIES[dropoff_country].keys() %}
@@ -184,15 +180,15 @@
                             {% endif %}
                         </select>
                     </div>
-                    <div>
+                    <div class="relative">
                         <label for="dropoff_address" class="block text-sm font-medium text-gray-700">Address *</label>
-                        <input type="text" name="dropoff_address" id="dropoff_address" required
-                               value="{{ dropoff_address }}"
-                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                        <input type="text" name="dropoff_address" id="dropoff_address" required value="{{ dropoff_address }}" autocomplete="off" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" oninput="searchAddress('dropoff')">
+                        <div id="dropoff_suggestions" class="location-suggestions"></div>
                     </div>
                 </div>
                 <input type="hidden" name="dropoff_lat" id="dropoff_lat" value="{{ quote.dropoff_lat }}">
                 <input type="hidden" name="dropoff_lng" id="dropoff_lng" value="{{ quote.dropoff_lng }}">
+                <button type="button" class="mt-2 px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200" onclick="enablePinOnMap('dropoff')">Pin on Map</button>
             </div>
 
             <!-- Route Map -->
@@ -342,6 +338,9 @@ function initMap() {
     // Set up location search
     setupLocationSearch('pickup');
     setupLocationSearch('dropoff');
+
+    // Add map click handler for pin mode
+    map.on('click', onMapClick);
 }
 
 async function updateRoute() {
@@ -477,6 +476,134 @@ function setupLocationSearch(type) {
             }
         }
     });
+}
+
+// --- Address Search and Suggestions ---
+async function searchAddress(type) {
+    const input = document.getElementById(`${type}_address`);
+    const suggestions = document.getElementById(`${type}_suggestions`);
+    const country = document.getElementById(`${type}_country`).value;
+    const query = input.value;
+    if (!query || query.length < 3) {
+        suggestions.innerHTML = '';
+        suggestions.classList.remove('active');
+        return;
+    }
+    suggestions.innerHTML = '<div class="suggestion-item">Searching...</div>';
+    suggestions.classList.add('active');
+    try {
+        const url = `/search_address?query=${encodeURIComponent(query)}&country=${encodeURIComponent(country)}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.length === 0) {
+            suggestions.innerHTML = '<div class="suggestion-item">No results found</div>';
+        } else {
+            suggestions.innerHTML = data.map(addr =>
+                `<div class="suggestion-item" onclick='selectAddress(${JSON.stringify(addr)}, "${type}")'>${addr.display_name}</div>`
+            ).join('');
+        }
+    } catch (e) {
+        suggestions.innerHTML = '<div class="suggestion-item">Error searching address</div>';
+    }
+}
+
+function selectAddress(addr, type) {
+    document.getElementById(`${type}_address`).value = addr.display_name;
+    document.getElementById(`${type}_lat`).value = addr.lat;
+    document.getElementById(`${type}_lng`).value = addr.lon;
+    document.getElementById(`${type}_suggestions`).innerHTML = '';
+    document.getElementById(`${type}_suggestions`).classList.remove('active');
+    // Move marker on map
+    const latLng = [parseFloat(addr.lat), parseFloat(addr.lon)];
+    if (type === 'pickup') {
+        if (pickupMarker) {
+            pickupMarker.setLatLng(latLng);
+        } else {
+            pickupMarker = L.marker(latLng, { draggable: true }).addTo(map);
+            pickupMarker.on('dragend', function(e) {
+                updatePickupCoords(e);
+                updateRoute();
+            });
+        }
+        map.setView(latLng, 13);
+    } else {
+        if (dropoffMarker) {
+            dropoffMarker.setLatLng(latLng);
+        } else {
+            dropoffMarker = L.marker(latLng, { draggable: true }).addTo(map);
+            dropoffMarker.on('dragend', function(e) {
+                updateDropoffCoords(e);
+                updateRoute();
+            });
+        }
+        map.setView(latLng, 13);
+    }
+    if (pickupMarker && dropoffMarker) {
+        updateRoute();
+        const bounds = L.latLngBounds([
+            pickupMarker.getLatLng(),
+            dropoffMarker.getLatLng()
+        ]);
+        map.fitBounds(bounds, { padding: [50, 50] });
+    }
+}
+
+document.addEventListener('click', function(e) {
+    if (!e.target.classList.contains('suggestion-item')) {
+        document.getElementById('pickup_suggestions').classList.remove('active');
+        document.getElementById('dropoff_suggestions').classList.remove('active');
+    }
+});
+
+// --- Pin on Map Functionality ---
+let pinMode = null;
+function enablePinOnMap(type) {
+    pinMode = type;
+    map.getContainer().style.cursor = 'crosshair';
+    alert('Click on the map to set the ' + (type === 'pickup' ? 'pickup' : 'dropoff') + ' location.');
+}
+
+function onMapClick(e) {
+    if (!pinMode) return;
+    const lat = e.latlng.lat;
+    const lng = e.latlng.lng;
+    if (pinMode === 'pickup') {
+        document.getElementById('pickup_lat').value = lat;
+        document.getElementById('pickup_lng').value = lng;
+        document.getElementById('pickup_address').value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+        if (pickupMarker) {
+            pickupMarker.setLatLng([lat, lng]);
+        } else {
+            pickupMarker = L.marker([lat, lng], { draggable: true }).addTo(map);
+            pickupMarker.on('dragend', function(e) {
+                updatePickupCoords(e);
+                updateRoute();
+            });
+        }
+    } else {
+        document.getElementById('dropoff_lat').value = lat;
+        document.getElementById('dropoff_lng').value = lng;
+        document.getElementById('dropoff_address').value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+        if (dropoffMarker) {
+            dropoffMarker.setLatLng([lat, lng]);
+        } else {
+            dropoffMarker = L.marker([lat, lng], { draggable: true }).addTo(map);
+            dropoffMarker.on('dragend', function(e) {
+                updateDropoffCoords(e);
+                updateRoute();
+            });
+        }
+    }
+    pinMode = null;
+    map.getContainer().style.cursor = '';
+    if (pickupMarker && dropoffMarker) {
+        updateRoute();
+        const bounds = L.latLngBounds([
+            pickupMarker.getLatLng(),
+            dropoffMarker.getLatLng()
+        ]);
+        map.fitBounds(bounds, { padding: [50, 50] });
+    }
 }
 
 // Initialize map when the page loads
