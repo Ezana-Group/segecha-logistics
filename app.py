@@ -184,22 +184,115 @@ def admin_shipments():
 @app.route('/admin/new-shipment', methods=['GET', 'POST'])
 def new_shipment():
     if request.method == 'POST':
-        # TODO: Add logic to save new shipment to DB
-        flash('Shipment creation is not implemented yet.', 'info')
-        return redirect(url_for('admin_shipments'))
+        try:
+            # Parse dates
+            pickup_date = None
+            if request.form.get('pickup_date'):
+                pickup_date = datetime.strptime(request.form.get('pickup_date'), '%Y-%m-%d')
+            
+            estimated_delivery = None
+            if request.form.get('estimated_delivery'):
+                estimated_delivery = datetime.strptime(request.form.get('estimated_delivery'), '%Y-%m-%dT%H:%M')
+
+            # Create new shipment
+            shipment = Shipment(
+                customer_name=request.form['customer_name'],
+                pickup_location=request.form['pickup_location'],
+                pickup_lat=float(request.form.get('pickup_lat', 0)),
+                pickup_lng=float(request.form.get('pickup_lng', 0)),
+                dropoff_location=request.form['dropoff_location'],
+                dropoff_lat=float(request.form.get('dropoff_lat', 0)),
+                dropoff_lng=float(request.form.get('dropoff_lng', 0)),
+                cargo_description=request.form['cargo_description'],
+                pickup_date=pickup_date,
+                pickup_time=request.form.get('pickup_time'),
+                vehicle_plate=request.form.get('vehicle_plate'),
+                pickup_status=request.form.get('pickup_status', 'Pending'),
+                pickup_notes=request.form.get('pickup_notes'),
+                status=request.form.get('status', 'Pending'),
+                estimated_delivery=estimated_delivery,
+                notes=request.form.get('notes')
+            )
+            
+            db.session.add(shipment)
+            db.session.commit()
+            
+            flash('Shipment created successfully!', 'success')
+            return redirect(url_for('admin_shipments'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error creating shipment: {str(e)}', 'error')
+            return redirect(url_for('new_shipment'))
+            
     return render_template('admin/shipment_form.html', shipment=None, quote_request=None, now=datetime.now())
 
-@app.route('/admin/edit-shipment/<int:id>')
+@app.route('/admin/edit-shipment/<int:id>', methods=['GET', 'POST'])
 def edit_shipment(id):
-    return f"<h1>Edit Shipment {id} (Coming Soon)</h1>"
+    shipment = Shipment.query.get_or_404(id)
+    
+    if request.method == 'POST':
+        try:
+            # Parse dates
+            pickup_date = None
+            if request.form.get('pickup_date'):
+                pickup_date = datetime.strptime(request.form.get('pickup_date'), '%Y-%m-%d')
+            
+            estimated_delivery = None
+            if request.form.get('estimated_delivery'):
+                estimated_delivery = datetime.strptime(request.form.get('estimated_delivery'), '%Y-%m-%dT%H:%M')
+
+            # Update shipment
+            shipment.customer_name = request.form['customer_name']
+            shipment.pickup_location = request.form['pickup_location']
+            shipment.pickup_lat = float(request.form.get('pickup_lat', 0))
+            shipment.pickup_lng = float(request.form.get('pickup_lng', 0))
+            shipment.dropoff_location = request.form['dropoff_location']
+            shipment.dropoff_lat = float(request.form.get('dropoff_lat', 0))
+            shipment.dropoff_lng = float(request.form.get('dropoff_lng', 0))
+            shipment.cargo_description = request.form['cargo_description']
+            shipment.pickup_date = pickup_date
+            shipment.pickup_time = request.form.get('pickup_time')
+            shipment.vehicle_plate = request.form.get('vehicle_plate')
+            shipment.pickup_status = request.form.get('pickup_status', 'Pending')
+            shipment.pickup_notes = request.form.get('pickup_notes')
+            shipment.status = request.form.get('status', 'Pending')
+            shipment.estimated_delivery = estimated_delivery
+            shipment.notes = request.form.get('notes')
+            
+            db.session.commit()
+            flash('Shipment updated successfully!', 'success')
+            return redirect(url_for('admin_shipments'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating shipment: {str(e)}', 'error')
+            return redirect(url_for('edit_shipment', id=id))
+    
+    return render_template('admin/shipment_form.html', shipment=shipment, quote_request=None, now=datetime.now())
 
 @app.route('/admin/mark-shipment-delivered/<int:id>', methods=['POST'])
 def mark_shipment_delivered(id):
-    return f"<h1>Mark Shipment {id} Delivered (Coming Soon)</h1>"
+    shipment = Shipment.query.get_or_404(id)
+    try:
+        shipment.status = 'Delivered'
+        shipment.actual_delivery = datetime.utcnow()
+        db.session.commit()
+        flash('Shipment marked as delivered!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error marking shipment as delivered: {str(e)}', 'error')
+    return redirect(url_for('admin_shipments'))
 
 @app.route('/admin/delete-shipment/<int:id>', methods=['POST'])
 def delete_shipment(id):
-    return f"<h1>Delete Shipment {id} (Coming Soon)</h1>"
+    shipment = Shipment.query.get_or_404(id)
+    try:
+        db.session.delete(shipment)
+        db.session.commit()
+        flash('Shipment deleted successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting shipment: {str(e)}', 'error')
+    return redirect(url_for('admin_shipments'))
 
 # Remove or comment out the /admin_login route and any related logic
 # @app.route('/admin_login', methods=['GET', 'POST'])
