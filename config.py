@@ -8,16 +8,18 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
-    # Original Version
-    #SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \ 
-        #'sqlite:///' + os.path.join(basedir, 'instance', 'database.db')
+    
+    # Normalize DATABASE_URL
+    raw_db_url = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'instance', 'database.db')
+    if raw_db_url.startswith("postgres://"):
+        raw_db_url = raw_db_url.replace("postgres://", "postgresql://")
+    if "psycopg2binary" in raw_db_url:
+        raw_db_url = raw_db_url.replace("psycopg2binary", "psycopg2")
 
-    uri = os.environ.get('DATABASE_URL', '').replace("postgres://", "postgresql://")
-    SQLALCHEMY_DATABASE_URI = uri or 'sqlite:///' + os.path.join(basedir, 'instance', 'database.db')
-    
+    SQLALCHEMY_DATABASE_URI = raw_db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    
-    # Admin credentials (should be moved to environment variables in production)
+
+    # Admin credentials
     ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL') or 'admin@segecha.com'
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD') or 'admin123'  # Change in production!
     
@@ -30,7 +32,7 @@ class Config:
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'info@segecha.com')
     
     # WhatsApp number
-    WHATSAPP_NUMBER = os.environ.get('WHATSAPP_NUMBER') or '254700000000'  # Replace with actual number 
+    WHATSAPP_NUMBER = os.environ.get('WHATSAPP_NUMBER') or '254700000000'
     
-    # Session configuration
+    # Session config
     PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)
