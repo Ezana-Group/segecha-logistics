@@ -404,18 +404,30 @@ def edit_quote(id):
             return redirect(url_for('edit_quote', id=id))
     
     # Parse the pickup and dropoff locations to get address components
-    pickup_parts = quote.pickup_location.split(', ')
-    dropoff_parts = quote.dropoff_location.split(', ')
-    
+    pickup_parts = (quote.pickup_location or '').split(', ')
+    dropoff_parts = (quote.dropoff_location or '').split(', ')
+
     pickup_address = pickup_parts[0] if len(pickup_parts) > 0 else ''
     pickup_city = pickup_parts[1] if len(pickup_parts) > 1 else ''
     pickup_country = pickup_parts[2] if len(pickup_parts) > 2 else ''
-    
+
     dropoff_address = dropoff_parts[0] if len(dropoff_parts) > 0 else ''
     dropoff_city = dropoff_parts[1] if len(dropoff_parts) > 1 else ''
     dropoff_country = dropoff_parts[2] if len(dropoff_parts) > 2 else ''
-    
+
+    # Defensive: ensure pickup_country and dropoff_country are valid keys
     countries = list(EAST_AFRICAN_CITIES.keys())
+    if pickup_country not in EAST_AFRICAN_CITIES:
+        pickup_country = ''
+        pickup_city = ''
+    elif pickup_city not in EAST_AFRICAN_CITIES[pickup_country]:
+        pickup_city = ''
+    if dropoff_country not in EAST_AFRICAN_CITIES:
+        dropoff_country = ''
+        dropoff_city = ''
+    elif dropoff_city not in EAST_AFRICAN_CITIES[dropoff_country]:
+        dropoff_city = ''
+
     return render_template('admin/edit_quote.html',
                          quote=quote,
                          pickup_address=pickup_address,
