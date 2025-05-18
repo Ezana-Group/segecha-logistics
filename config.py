@@ -8,8 +8,13 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'instance', 'database.db')
+    # Original Version
+    #SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \ 
+        #'sqlite:///' + os.path.join(basedir, 'instance', 'database.db')
+
+    uri = os.environ.get('DATABASE_URL', '').replace("postgres://", "postgresql://")
+    SQLALCHEMY_DATABASE_URI = uri or 'sqlite:///' + os.path.join(basedir, 'instance', 'database.db')
+    
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Admin credentials (should be moved to environment variables in production)
