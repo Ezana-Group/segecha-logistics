@@ -9,7 +9,8 @@ from database import db, Admin, QuoteRequest, Shipment
 from cities import EAST_AFRICAN_CITIES
 from flask_mail import Mail, Message
 from commands import init_db_command
-from flask import make_response, send_from_directory
+from flask import make_response, send_from_directory, request
+from datetime import timedelta
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -21,10 +22,13 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'admin_login'
 
+# Initialize Flask-Mail
 mail = Mail(app)
 
+# Register commands
 app.cli.add_command(init_db_command)
 
+# OSRM service URL
 OSRM_URL = "https://router.project-osrm.org/route/v1/driving/{},{};{},{}"
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
 
@@ -32,6 +36,21 @@ NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
 def load_user(user_id):
     return Admin.query.get(int(user_id))
 
+# Helper route for getting cities
+@app.route('/get_cities/<country>')
+def get_cities(country):
+    if country in EAST_AFRICAN_CITIES:
+        return jsonify(list(EAST_AFRICAN_CITIES[country].keys()))
+    return jsonify([])
+
+# Helper route for getting city coordinates
+@app.route('/get_city_coords/<country>/<city>')
+def get_city_coords(country, city):
+    if country in EAST_AFRICAN_CITIES and city in EAST_AFRICAN_CITIES[country]:
+        return jsonify(EAST_AFRICAN_CITIES[country][city])
+    return jsonify({})
+
+# Public routes
 @app.route('/')
 def index():
     return render_template('index.html', now=datetime.now())
@@ -48,61 +67,6 @@ def services():
 def contact():
     return render_template('contact.html', now=datetime.now())
 
-@app.route('/quote', methods=['GET', 'POST'])
-def quote():
-    if request.method == 'POST':
-        try:
-            preferred_date = None
-            if request.form.get('preferred_date'):
-                preferred_date = datetime.strptime(request.form.get('preferred_date'), '%Y-%m-%d').date()
-
-            pickup_location = f"{request.form.get('pickup_address')}, {request.form.get('pickup_city')}, {request.form.get('pickup_country')}"
-            dropoff_location = f"{request.form.get('dropoff_address')}, {request.form.get('dropoff_city')}, {request.form.get('dropoff_country')}"
-
-            pickup_lat = float(request.form.get('pickup_lat', 0))
-            pickup_lng = float(request.form.get('pickup_lng', 0))
-            dropoff_lat = float(request.form.get('dropoff_lat', 0))
-            dropoff_lng = float(request.form.get('dropoff_lng', 0))
-            estimated_distance = float(request.form.get('estimated_distance', 0))
-
-            quote_request = QuoteRequest(
-                name=request.form['name'],
-                company=request.form.get('company'),
-                email=request.form['email'],
-                phone=request.form['phone'],
-                pickup_location=pickup_location,
-                pickup_lat=pickup_lat,
-                pickup_lng=pickup_lng,
-                dropoff_location=dropoff_location,
-                dropoff_lat=dropoff_lat,
-                dropoff_lng=dropoff_lng,
-                estimated_distance=estimated_distance,
-                cargo_description=request.form['cargo_description'],
-                preferred_date=preferred_date,
-                additional_notes=request.form.get('additional_notes')
-            )
-
-            db.session.add(quote_request)
-            db.session.commit()
-            return jsonify({'success': True, 'message': 'Your quote request has been submitted successfully!'})
-
-        except Exception as e:
-            print(f"Error processing quote request: {e}")
-            return jsonify({'success': False, 'message': 'An error occurred while processing your request.'}), 500
-
-    countries = list(EAST_AFRICAN_CITIES.keys())
-    return render_template('quote.html', now=datetime.now(), countries=countries, EAST_AFRICAN_CITIES=EAST_AFRICAN_CITIES)
-
-@app.route('/track', methods=['GET', 'POST'])
-def track():
-    if request.method == 'POST':
-        tracking_id = request.form.get('tracking_id')
-        shipment = Shipment.query.filter_by(tracking_id=tracking_id).first()
-        if shipment:
-            return render_template('track.html', shipment=shipment, now=datetime.now(), show_result=True)
-        flash('Tracking ID not found.', 'error')
-    return render_template('track.html', now=datetime.now(), show_result=False)
-
 @app.route('/privacy-policy')
 def privacy_policy():
     return render_template('legal/privacy_policy.html', now=datetime.now())
@@ -115,6 +79,16 @@ def terms_of_service():
 def cookie_policy():
     return render_template('legal/cookie_policy.html', now=datetime.now())
 
+@app.route('/track', methods=['GET', 'POST'])
+def track():
+    if request.method == 'POST':
+        tracking_id = request.form.get('tracking_id')
+        shipment = Shipment.query.filter_by(tracking_id=tracking_id).first()
+        if shipment:
+            return render_template('track.html', shipment=shipment, now=datetime.now(), show_result=True)
+        flash('Tracking ID not found. Please check and try again.', 'error')
+    return render_template('track.html', now=datetime.now(), show_result=False)
+
 @app.after_request
 def add_cache_control(response):
     if request.path.startswith('/static/'):
@@ -122,4 +96,19 @@ def add_cache_control(response):
     return response
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000, debug=True)
+    with app.app_context():
+        from flask_migrate import upgrade
+        from database import Admin
+
+        upgrade()  # Apply DB migrations
+
+        if not Admin.query.filter_by(email="admin@segecha.com").first():
+            admin = Admin(email="admin@segecha.com")
+            admin.set_password("admin123")
+            db.session.add(admin)
+            db.session.commit()
+            print("✅ Admin user created.")
+        else:
+            print("ℹ️ Admin user already exists.")
+
+    app.run(host="0.0.0.0", port=10000, debug=True)
