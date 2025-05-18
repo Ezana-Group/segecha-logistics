@@ -439,6 +439,18 @@ def mark_reviewed(quote_id):
         db.session.rollback()
         return jsonify({'success': False, 'error': str(e)})
 
+@app.route('/admin/delete-quote/<int:id>', methods=['POST'])
+def delete_quote(id):
+    quote = QuoteRequest.query.get_or_404(id)
+    try:
+        db.session.delete(quote)
+        db.session.commit()
+        flash('Quote deleted successfully!', 'success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error deleting quote: {str(e)}', 'error')
+    return redirect(url_for('admin_dashboard'))
+
 # Remove or comment out the /admin_login route and any related logic
 # @app.route('/admin_login', methods=['GET', 'POST'])
 # def admin_login():
