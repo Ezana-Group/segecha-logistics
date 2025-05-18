@@ -453,5 +453,11 @@ def add_cache_control(response):
     return response
 #if __name__ == '__main__':
     # app.run(debug=True) 
-if __name__ == "__main__":
+# if __name__ == "__main__":
+    #app.run(host="0.0.0.0", port=10000, debug=True)
+if __name__ == '__main__':
+    with app.app_context():
+        from flask_migrate import upgrade
+        upgrade()  # Automatically applies any pending DB migrations
+
     app.run(host="0.0.0.0", port=10000, debug=True)
