@@ -181,9 +181,13 @@ def admin_shipments():
     shipments = Shipment.query.order_by(Shipment.created_at.desc()).all()
     return render_template('admin/admin_shipments.html', shipments=shipments, now=datetime.now())
 
-@app.route('/admin/new-shipment')
+@app.route('/admin/new-shipment', methods=['GET', 'POST'])
 def new_shipment():
-    return "<h1>New Shipment Page (Coming Soon)</h1>"
+    if request.method == 'POST':
+        # TODO: Add logic to save new shipment to DB
+        flash('Shipment creation is not implemented yet.', 'info')
+        return redirect(url_for('admin_shipments'))
+    return render_template('admin/shipment_form.html', shipment=None, quote_request=None, now=datetime.now())
 
 @app.route('/admin/edit-shipment/<int:id>')
 def edit_shipment(id):
