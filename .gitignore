@@ -1,3 +1,4 @@
+.venv/
 __pycache__/
 *.pyc
 .env
@@ -5,3 +6,5 @@ __pycache__/
 instance/
 *.sqlite
 *.db
+static/images/
+static/images/
