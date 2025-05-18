@@ -168,6 +168,10 @@ def add_cache_control(response):
         response.headers['Cache-Control'] = 'public, max-age=31536000'
     return response
 
+@app.route('/admin')
+def admin_dashboard():
+    return render_template('admin_dashboard.html', now=datetime.now())
+
 # Remove or comment out the /admin_login route and any related logic
 # @app.route('/admin_login', methods=['GET', 'POST'])
 # def admin_login():
