@@ -13,6 +13,13 @@ from commands import init_db_command
 app = Flask(__name__)
 app.config.from_object(Config)
 
+@app.route("/")
+def index():
+    return "Segecha Logistics is Live!"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
+
 # Initialize extensions
 db.init_app(app)
 migrate = Migrate(app, db)
