@@ -172,7 +172,8 @@ def add_cache_control(response):
 def admin_dashboard():
     quote_requests = QuoteRequest.query.order_by(QuoteRequest.created_at.desc()).all()
     recent_shipments = Shipment.query.order_by(Shipment.created_at.desc()).limit(5).all()
-    return render_template('admin_dashboard.html', now=datetime.now(), quote_requests=quote_requests, recent_shipments=recent_shipments)
+    reviewed_awaiting_shipment = QuoteRequest.query.filter_by(reviewed=True).filter(QuoteRequest.shipment == None).order_by(QuoteRequest.created_at.desc()).all()
+    return render_template('admin_dashboard.html', now=datetime.now(), quote_requests=quote_requests, recent_shipments=recent_shipments, reviewed_awaiting_shipment=reviewed_awaiting_shipment)
 
 @app.route('/test')
 def test():
