@@ -170,7 +170,9 @@ def add_cache_control(response):
 
 @app.route('/admin')
 def admin_dashboard():
-    return render_template('admin_dashboard.html', now=datetime.now())
+    quote_requests = QuoteRequest.query.order_by(QuoteRequest.created_at.desc()).all()
+    recent_shipments = Shipment.query.order_by(Shipment.created_at.desc()).limit(5).all()
+    return render_template('admin_dashboard.html', now=datetime.now(), quote_requests=quote_requests, recent_shipments=recent_shipments)
 
 @app.route('/test')
 def test():
