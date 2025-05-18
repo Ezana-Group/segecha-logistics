@@ -172,6 +172,30 @@ def add_cache_control(response):
 def admin_dashboard():
     return render_template('admin_dashboard.html', now=datetime.now())
 
+@app.route('/test')
+def test():
+    return "Test route is working!"
+
+@app.route('/admin/shipments')
+def admin_shipments():
+    return "<h1>Shipments Page (Coming Soon)</h1>"
+
+@app.route('/admin/new-shipment')
+def new_shipment():
+    return "<h1>New Shipment Page (Coming Soon)</h1>"
+
+@app.route('/admin/edit-shipment/<int:id>')
+def edit_shipment(id):
+    return f"<h1>Edit Shipment {id} (Coming Soon)</h1>"
+
+@app.route('/admin/mark-shipment-delivered/<int:id>', methods=['POST'])
+def mark_shipment_delivered(id):
+    return f"<h1>Mark Shipment {id} Delivered (Coming Soon)</h1>"
+
+@app.route('/admin/delete-shipment/<int:id>', methods=['POST'])
+def delete_shipment(id):
+    return f"<h1>Delete Shipment {id} (Coming Soon)</h1>"
+
 # Remove or comment out the /admin_login route and any related logic
 # @app.route('/admin_login', methods=['GET', 'POST'])
 # def admin_login():
