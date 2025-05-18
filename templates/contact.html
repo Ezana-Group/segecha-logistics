@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Header Section -->
+<section class="bg-blue-900 text-white py-20">
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl font-bold mb-4 opacity-0 translate-y-8 transition-all duration-700 animate-header">Contact Us</h1>
+        <p class="text-xl opacity-0 translate-y-8 transition-all duration-700 delay-100 animate-header">Get in touch with our team</p>
+    </div>
+</section>
+
+<!-- Contact Information -->
+<section class="py-16">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <!-- Contact Details -->
+            <div class="opacity-0 translate-x-[-50px] transition-all duration-700 contact-content">
+                <h2 class="text-3xl font-bold mb-8">Get In Touch</h2>
+                
+                <!-- Contact Cards -->
+                <div class="space-y-6">
+                    <!-- Phone -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg opacity-0 translate-y-8 transition-all duration-700 delay-100 contact-card">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-phone text-2xl text-blue-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-xl font-semibold mb-2">Phone</h3>
+                                <p class="text-gray-600">+254 XXX XXX XXX</p>
+                                <p class="text-gray-600">+254 XXX XXX XXX</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg opacity-0 translate-y-8 transition-all duration-700 delay-200 contact-card">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-envelope text-2xl text-blue-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-xl font-semibold mb-2">Email</h3>
+                                <p class="text-gray-600">info@segecha.com</p>
+                                <p class="text-gray-600">support@segecha.com</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Business Hours -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg opacity-0 translate-y-8 transition-all duration-700 delay-300 contact-card">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-clock text-2xl text-blue-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-xl font-semibold mb-2">Business Hours</h3>
+                                <p class="text-gray-600">Monday - Saturday: 8:00 AM - 6:00 PM</p>
+                                <p class="text-gray-600">Sunday: Closed</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Location -->
+                    <div class="bg-white p-6 rounded-lg shadow-lg opacity-0 translate-y-8 transition-all duration-700 delay-400 contact-card">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-map-marker-alt text-2xl text-blue-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4">
+                                <h3 class="text-xl font-semibold mb-2">Location</h3>
+                                <p class="text-gray-600">Nairobi, Kenya</p>
+                                <p class="text-gray-600">[Your Address Here]</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Media Links -->
+                <div class="mt-8 opacity-0 translate-y-8 transition-all duration-700 delay-500 social-links">
+                    <h3 class="text-xl font-semibold mb-4">Connect With Us</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-blue-400 text-white rounded-full flex items-center justify-center hover:bg-blue-500 transition-colors">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-pink-600 text-white rounded-full flex items-center justify-center hover:bg-pink-700 transition-colors">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 bg-blue-800 text-white rounded-full flex items-center justify-center hover:bg-blue-900 transition-colors">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map -->
+            <div class="opacity-0 translate-x-[50px] transition-all duration-700 map-container">
+                <div class="bg-white p-4 rounded-lg shadow-lg">
+                    <div class="aspect-w-16 aspect-h-12">
+                        <!-- Replace with your Google Maps embed code -->
+                        <iframe 
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d255281.19891573457!2d36.7069996!3d-1.3028617!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f1172d84d49a7%3A0xf7cf0254b297924c!2sNairobi%2C%20Kenya!5e0!3m2!1sen!2s!4v1624451234567!5m2!1sen!2s"
+                            width="100%" 
+                            height="450" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy"
+                            class="rounded-lg">
+                        </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-16 bg-gray-100">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-6 opacity-0 translate-y-8 transition-all duration-700 animate-section">Ready to Get Started?</h2>
+        <p class="text-xl text-gray-600 mb-8 opacity-0 translate-y-8 transition-all duration-700 delay-100 animate-section">Let us handle your transportation needs with the reliability you deserve.</p>
+        <a href="{{ url_for('quote') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors opacity-0 translate-y-8 transition-all duration-700 delay-200 animate-section">
+            Request a Quote
+        </a>
+    </div>
+</section>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Create observers with different animations
+    const fadeUpObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('opacity-100', 'translate-y-0');
+                fadeUpObserver.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+
+    const slideObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('opacity-100', 'translate-x-0');
+                slideObserver.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.2,
+        rootMargin: '0px 0px -100px 0px'
+    });
+
+    // Observe header and section elements
+    document.querySelectorAll('.animate-header, .animate-section').forEach(element => {
+        fadeUpObserver.observe(element);
+    });
+
+    // Observe content sections
+    document.querySelectorAll('.contact-content, .map-container').forEach(element => {
+        slideObserver.observe(element);
+    });
+
+    // Observe contact cards and social links
+    document.querySelectorAll('.contact-card, .social-links').forEach(element => {
+        fadeUpObserver.observe(element);
+    });
+});
+</script>
+{% endblock %}
+
+{% endblock %} 

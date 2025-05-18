@@ -1,0 +1,464 @@
+{% extends "base.html" %}
+
+{% block title %}{% if shipment %}Edit{% else %}New{% endif %} Shipment - Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<style>
+    .map-container {
+        height: 400px;
+        margin-bottom: 1rem;
+    }
+    .location-suggestions {
+        position: absolute;
+        z-index: 1000;
+        background: white;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.375rem;
+        width: 100%;
+        max-height: 200px;
+        overflow-y: auto;
+        display: none;
+    }
+    .location-suggestions.active {
+        display: block;
+    }
+    .location-suggestion {
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+    }
+    .location-suggestion:hover {
+        background-color: #f3f4f6;
+    }
+    .location-input-container {
+        position: relative;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow">
+    <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between py-4">
+            <span class="text-xl font-bold text-brand-primary">Admin Dashboard</span>
+            <nav class="flex space-x-4">
+            <a href="{{ url_for('admin_dashboard') }}" 
+               class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50">
+                <i class="fas fa-home mr-2"></i>Dashboard
+            </a>
+            <a href="{{ url_for('admin_shipments') }}" 
+               class="px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50">
+                <i class="fas fa-truck mr-2"></i>Shipments
+            </a>
+            <a href="{{ url_for('new_shipment') }}" 
+               class="px-3 py-2 rounded-md text-sm font-medium bg-blue-100 text-blue-700">
+                <i class="fas fa-plus mr-2"></i>New Shipment
+            </a>
+        </nav>
+    </div>
+</div>
+
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between">
+            <h1 class="text-2xl font-semibold text-gray-900">{% if shipment %}Edit{% else %}Create New{% endif %} Shipment</h1>
+            <a href="{{ url_for('admin_shipments') }}" 
+               class="text-blue-600 hover:text-blue-900">
+                Back to Shipments
+            </a>
+        </div>
+
+        <form method="POST" class="mt-8 bg-white shadow rounded-lg divide-y divide-gray-200">
+            <!-- Customer Information -->
+            <div class="p-6">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Customer Information</h2>
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-2">
+                    <div class="sm:col-span-2">
+                        <label for="customer_name" class="block text-sm font-medium text-gray-700">Customer Name</label>
+                        <input type="text" 
+                               name="customer_name" 
+                               id="customer_name"
+                               value="{% if shipment %}{{ shipment.customer_name }}{% elif quote_request %}{{ quote_request.name }}{% endif %}"
+                               required
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pickup Location -->
+            <div class="p-6">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Pickup Location</h2>
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                    <div class="sm:col-span-6">
+                        <div class="location-input-container">
+                            <label for="pickup_location" class="block text-sm font-medium text-gray-700">Location</label>
+                            <input type="text" 
+                                   name="pickup_location" 
+                                   id="pickup_location"
+                                   value="{% if shipment %}{{ shipment.pickup_location }}{% elif quote_request %}{{ quote_request.pickup_location }}{% endif %}"
+                                   required
+                                   autocomplete="off"
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <div id="pickup_suggestions" class="location-suggestions"></div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" 
+                           name="pickup_lat" 
+                           id="pickup_lat" 
+                           value="{% if shipment %}{{ shipment.pickup_lat }}{% elif quote_request %}{{ quote_request.pickup_lat }}{% endif %}">
+                    <input type="hidden" 
+                           name="pickup_lng" 
+                           id="pickup_lng" 
+                           value="{% if shipment %}{{ shipment.pickup_lng }}{% elif quote_request %}{{ quote_request.pickup_lng }}{% endif %}">
+                </div>
+            </div>
+
+            <!-- Delivery Location -->
+            <div class="p-6">
+                <h2 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-flag-checkered text-brand-primary text-xl mr-2"></i>
+                    Drop-off Location
+                </h2>
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                    <div class="sm:col-span-6">
+                        <div class="location-input-container">
+                            <label for="dropoff_location" class="block text-sm font-medium text-gray-700">Location</label>
+                            <input type="text" 
+                                   name="dropoff_location" 
+                                   id="dropoff_location"
+                                   value="{% if shipment %}{{ shipment.dropoff_location }}{% elif quote_request %}{{ quote_request.dropoff_location }}{% endif %}"
+                                   required
+                                   autocomplete="off"
+                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <div id="dropoff_suggestions" class="location-suggestions"></div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" 
+                           name="dropoff_lat" 
+                           id="dropoff_lat" 
+                           value="{% if shipment %}{{ shipment.dropoff_lat }}{% elif quote_request %}{{ quote_request.dropoff_lat }}{% endif %}">
+                    <input type="hidden" 
+                           name="dropoff_lng" 
+                           id="dropoff_lng" 
+                           value="{% if shipment %}{{ shipment.dropoff_lng }}{% elif quote_request %}{{ quote_request.dropoff_lng }}{% endif %}">
+                </div>
+            </div>
+
+            <!-- Current Location (for existing shipments) -->
+            {% if shipment %}
+            <div class="p-6">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Current Location</h2>
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                    <div class="sm:col-span-6">
+                        <label for="current_location" class="block text-sm font-medium text-gray-700">Location Description</label>
+                        <input type="text" 
+                               name="current_location" 
+                               id="current_location"
+                               value="{{ shipment.current_location }}"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <input type="hidden" name="current_lat" id="current_lat" value="{{ shipment.current_lat }}">
+                    <input type="hidden" name="current_lng" id="current_lng" value="{{ shipment.current_lng }}">
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Shipment Details -->
+            <div class="p-6">
+                <h2 class="text-lg font-medium text-gray-900 mb-4">Shipment Details</h2>
+                <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                    <div class="sm:col-span-6">
+                        <label for="cargo_description" class="block text-sm font-medium text-gray-700">Cargo Description</label>
+                        <textarea name="cargo_description" 
+                                  id="cargo_description"
+                                  rows="3"
+                                  required
+                                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{% if shipment %}{{ shipment.cargo_description }}{% elif quote_request %}{{ quote_request.cargo_description }}{% endif %}</textarea>
+                    </div>
+
+                    <!-- Pickup Details Section -->
+                    <div class="sm:col-span-3">
+                        <label for="pickup_date" class="block text-sm font-medium text-gray-700">Pickup Date</label>
+                        <input type="date" 
+                               name="pickup_date" 
+                               id="pickup_date"
+                               value="{% if shipment and shipment.pickup_date %}{{ shipment.pickup_date.strftime('%Y-%m-%d') }}{% endif %}"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <div class="sm:col-span-3">
+                        <label for="pickup_time" class="block text-sm font-medium text-gray-700">Pickup Time</label>
+                        <input type="time" 
+                               name="pickup_time" 
+                               id="pickup_time"
+                               value="{{ shipment.pickup_time if shipment else '' }}"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <div class="sm:col-span-3">
+                        <label for="vehicle_plate" class="block text-sm font-medium text-gray-700">Vehicle Plate Number</label>
+                        <input type="text" 
+                               name="vehicle_plate" 
+                               id="vehicle_plate"
+                               value="{{ shipment.vehicle_plate if shipment else '' }}"
+                               placeholder="e.g., KBZ 123A"
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <div class="sm:col-span-3">
+                        <label for="pickup_status" class="block text-sm font-medium text-gray-700">Pickup Status</label>
+                        <select name="pickup_status" 
+                                id="pickup_status"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="Pending" {% if shipment and shipment.pickup_status == 'Pending' %}selected{% endif %}>Pending</option>
+                            <option value="Picked Up" {% if shipment and shipment.pickup_status == 'Picked Up' %}selected{% endif %}>Picked Up</option>
+                        </select>
+                    </div>
+
+                    <div class="sm:col-span-6">
+                        <label for="pickup_notes" class="block text-sm font-medium text-gray-700">Pickup Notes</label>
+                        <textarea name="pickup_notes" 
+                                  id="pickup_notes"
+                                  rows="2"
+                                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ shipment.pickup_notes if shipment else '' }}</textarea>
+                    </div>
+
+                    <div class="sm:col-span-3">
+                        <label for="estimated_delivery" class="block text-sm font-medium text-gray-700">Estimated Delivery Date</label>
+                        <input type="datetime-local" 
+                               name="estimated_delivery" 
+                               id="estimated_delivery"
+                               value="{% if shipment and shipment.estimated_delivery %}{{ shipment.estimated_delivery.strftime('%Y-%m-%dT%H:%M') }}{% endif %}"
+                               required
+                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+
+                    <div class="sm:col-span-3">
+                        <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
+                        <select name="status" 
+                                id="status"
+                                required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="Pending" {% if shipment and shipment.status == 'Pending' %}selected{% endif %}>Pending</option>
+                            <option value="In Transit" {% if shipment and shipment.status == 'In Transit' %}selected{% endif %}>In Transit</option>
+                            <option value="Delivered" {% if shipment and shipment.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+                        </select>
+                    </div>
+
+                    <div class="sm:col-span-6">
+                        <label for="notes" class="block text-sm font-medium text-gray-700">Additional Notes</label>
+                        <textarea name="notes" 
+                                  id="notes"
+                                  rows="3"
+                                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{% if shipment %}{{ shipment.notes }}{% elif quote_request %}{{ quote_request.additional_notes }}{% endif %}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            {% if quote_request %}
+            <input type="hidden" name="quote_request_id" value="{{ quote_request.id }}">
+            {% endif %}
+
+            <!-- Map -->
+            <div class="p-6">
+                <div id="map" class="map-container rounded-lg border border-gray-300"></div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="px-6 py-4 bg-gray-50 flex justify-end">
+                <button type="submit" 
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                    {% if shipment %}Save Changes{% else %}Create Shipment{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+let map, pickupMarker, dropoffMarker;
+let searchTimeout;
+
+function initMap() {
+    // Initialize the map
+    map = L.map('map').setView([0, 35], 5);  // Centered on East Africa
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Initialize markers
+    const pickupLat = parseFloat(document.getElementById('pickup_lat').value) || 0;
+    const pickupLng = parseFloat(document.getElementById('pickup_lng').value) || 0;
+    const dropoffLat = parseFloat(document.getElementById('dropoff_lat').value) || 0;
+    const dropoffLng = parseFloat(document.getElementById('dropoff_lng').value) || 0;
+
+    if (pickupLat && pickupLng) {
+        pickupMarker = L.marker([pickupLat, pickupLng], {
+            draggable: true,
+            icon: L.divIcon({
+                className: 'custom-div-icon',
+                html: '<div style="background-color: #3B82F6; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>',
+                iconSize: [12, 12]
+            })
+        }).addTo(map);
+        pickupMarker.on('dragend', updatePickupCoords);
+    }
+
+    if (dropoffLat && dropoffLng) {
+        dropoffMarker = L.marker([dropoffLat, dropoffLng], {
+            draggable: true,
+            icon: L.divIcon({
+                className: 'custom-div-icon',
+                html: '<div style="background-color: #10B981; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>',
+                iconSize: [12, 12]
+            })
+        }).addTo(map);
+        dropoffMarker.on('dragend', updateDropoffCoords);
+    }
+
+    // Fit bounds if both markers exist
+    if (pickupMarker && dropoffMarker) {
+        const bounds = L.latLngBounds([
+            [pickupLat, pickupLng],
+            [dropoffLat, dropoffLng]
+        ]);
+        map.fitBounds(bounds, { padding: [50, 50] });
+    }
+
+    // Set up location search
+    setupLocationSearch('pickup');
+    setupLocationSearch('dropoff');
+}
+
+function setupLocationSearch(type) {
+    const input = document.getElementById(`${type}_location`);
+    const suggestions = document.getElementById(`${type}_suggestions`);
+
+    input.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        const query = this.value;
+        
+        if (query.length < 3) {
+            suggestions.innerHTML = '';
+            suggestions.classList.remove('active');
+            return;
+        }
+
+        searchTimeout = setTimeout(() => {
+            searchLocation(query, type);
+        }, 300);
+    });
+
+    // Close suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!input.contains(e.target) && !suggestions.contains(e.target)) {
+            suggestions.classList.remove('active');
+        }
+    });
+}
+
+async function searchLocation(query, type) {
+    try {
+        const response = await fetch(`/search_address?query=${encodeURIComponent(query)}`);
+        const data = await response.json();
+        
+        const suggestions = document.getElementById(`${type}_suggestions`);
+        suggestions.innerHTML = '';
+        
+        if (data.length > 0) {
+            data.forEach(result => {
+                const div = document.createElement('div');
+                div.className = 'location-suggestion';
+                div.textContent = result.display_name;
+                div.addEventListener('click', () => {
+                    selectLocation(result, type);
+                });
+                suggestions.appendChild(div);
+            });
+            suggestions.classList.add('active');
+        } else {
+            suggestions.classList.remove('active');
+        }
+    } catch (error) {
+        console.error('Error searching for location:', error);
+    }
+}
+
+function selectLocation(location, type) {
+    const input = document.getElementById(`${type}_location`);
+    const lat = document.getElementById(`${type}_lat`);
+    const lng = document.getElementById(`${type}_lng`);
+    const suggestions = document.getElementById(`${type}_suggestions`);
+    
+    input.value = location.display_name;
+    lat.value = location.lat;
+    lng.value = location.lon;
+    
+    suggestions.classList.remove('active');
+    
+    // Update marker
+    const latLng = [location.lat, location.lon];
+    if (type === 'pickup') {
+        if (pickupMarker) {
+            pickupMarker.setLatLng(latLng);
+        } else {
+            pickupMarker = L.marker(latLng, {
+                draggable: true,
+                icon: L.divIcon({
+                    className: 'custom-div-icon',
+                    html: '<div style="background-color: #3B82F6; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>',
+                    iconSize: [12, 12]
+                })
+            }).addTo(map);
+            pickupMarker.on('dragend', updatePickupCoords);
+        }
+    } else {
+        if (dropoffMarker) {
+            dropoffMarker.setLatLng(latLng);
+        } else {
+            dropoffMarker = L.marker(latLng, {
+                draggable: true,
+                icon: L.divIcon({
+                    className: 'custom-div-icon',
+                    html: '<div style="background-color: #10B981; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>',
+                    iconSize: [12, 12]
+                })
+            }).addTo(map);
+            dropoffMarker.on('dragend', updateDropoffCoords);
+        }
+    }
+    
+    // Fit bounds if both markers exist
+    if (pickupMarker && dropoffMarker) {
+        const bounds = L.latLngBounds([
+            pickupMarker.getLatLng(),
+            dropoffMarker.getLatLng()
+        ]);
+        map.fitBounds(bounds, { padding: [50, 50] });
+    } else {
+        map.setView(latLng, 13);
+    }
+}
+
+function updatePickupCoords(e) {
+    const latlng = e.target.getLatLng();
+    document.getElementById('pickup_lat').value = latlng.lat;
+    document.getElementById('pickup_lng').value = latlng.lng;
+}
+
+function updateDropoffCoords(e) {
+    const latlng = e.target.getLatLng();
+    document.getElementById('dropoff_lat').value = latlng.lat;
+    document.getElementById('dropoff_lng').value = latlng.lng;
+}
+
+// Initialize map when the page loads
+document.addEventListener('DOMContentLoaded', initMap);
+</script>
+{% endblock %}
+{% endblock %} 

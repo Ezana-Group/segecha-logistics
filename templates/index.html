@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero h-screen bg-cover bg-center relative overflow-hidden" style="background-image: url('/static/images/hero_mercedes_actros.jpg');">
+    <!-- Animated gradient overlay -->
+    <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-black/60 animate-gradient"></div>
+    
+    <div class="absolute inset-0 flex flex-col justify-center items-center text-white px-4 md:px-8">
+        <div class="max-w-5xl mx-auto text-center transform transition-all duration-1000 translate-y-0 opacity-100">
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fadeIn">
+                Transforming East African Logistics
+                <span class="block text-brand-accent mt-2">One Journey at a Time</span>
+            </h1>
+            <p class="text-lg md:text-xl lg:text-2xl text-gray-200 mb-8 max-w-3xl mx-auto animate-slideUp">
+                Experience seamless cross-border transportation with real-time tracking and professional fleet management across East Africa.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fadeIn">
+                <a href="/quote" 
+                   class="w-full sm:w-auto px-8 py-4 bg-brand-accent hover:bg-brand-accent/90 text-white font-semibold rounded-lg transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl">
+                    Get Started Now
+                </a>
+                <a href="/track" 
+                   class="w-full sm:w-auto px-8 py-4 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-lg backdrop-blur-sm transform hover:scale-105 transition-all duration-300 border border-white/30">
+                    Track Your Shipment
+                </a>
+            </div>
+            <div class="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto animate-fadeIn">
+                <div class="bg-black/30 backdrop-blur-sm rounded-lg p-4 border border-white/10">
+                    <div class="font-bold text-2xl md:text-3xl text-brand-accent">24/7</div>
+                    <div class="text-sm text-gray-300">Real-time Tracking</div>
+                </div>
+                <div class="bg-black/30 backdrop-blur-sm rounded-lg p-4 border border-white/10">
+                    <div class="font-bold text-2xl md:text-3xl text-brand-accent">5+</div>
+                    <div class="text-sm text-gray-300">Countries Covered</div>
+                </div>
+                <div class="bg-black/30 backdrop-blur-sm rounded-lg p-4 border border-white/10">
+                    <div class="font-bold text-2xl md:text-3xl text-brand-accent">500+</div>
+                    <div class="text-sm text-gray-300">Active Clients</div>
+                </div>
+                <div class="bg-black/30 backdrop-blur-sm rounded-lg p-4 border border-white/10">
+                    <div class="font-bold text-2xl md:text-3xl text-brand-accent">99.8%</div>
+                    <div class="text-sm text-gray-300">Delivery Rate</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <div class="w-8 h-12 rounded-full border-2 border-white/50 flex items-center justify-center">
+            <div class="w-2 h-2 bg-white rounded-full animate-scroll"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Services Overview -->
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold text-brand-primary text-center mb-4 opacity-0 translate-y-8 transition-all duration-700 service-header">Your Complete Logistics Solution</h2>
+            <p class="text-xl text-brand-muted text-center mb-16 opacity-0 translate-y-8 transition-all duration-700 delay-100 service-header">Experience the perfect blend of cutting-edge technology and local expertise for seamless logistics across East Africa.</p>
+            
+            <!-- Long-Haul Transport -->
+            <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
+                <div class="opacity-0 translate-x-[-50px] transition-all duration-700 service-content">
+                    <h3 class="text-2xl font-bold text-brand-primary mb-4">Reliable Long-Haul Transport</h3>
+                    <p class="text-brand-text mb-6">
+                        Move your cargo with confidence across East Africa. Our advanced tracking system provides real-time updates, while our experienced drivers ensure safe, on-time delivery. Benefit from:
+                    </p>
+                    <ul class="list-none text-brand-text mb-6 space-y-2">
+                        <li class="flex items-center"><i class="fas fa-check text-brand-accent mr-3"></i>24/7 real-time cargo tracking</li>
+                        <li class="flex items-center"><i class="fas fa-check text-brand-accent mr-3"></i>Professional, vetted drivers</li>
+                        <li class="flex items-center"><i class="fas fa-check text-brand-accent mr-3"></i>Flexible capacity options</li>
+                        <li class="flex items-center"><i class="fas fa-check text-brand-accent mr-3"></i>Cross-border expertise</li>
+                    </ul>
+                    <a href="{{ url_for('services') }}" 
+                       class="inline-flex items-center text-brand-primary hover:text-brand-primaryDark font-semibold transition-colors group">
+                        Learn More <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                </div>
+                <div class="relative h-[300px] rounded-lg overflow-hidden shadow-xl opacity-0 translate-x-[50px] transition-all duration-700 service-image">
+                    <img src="{{ url_for('static', filename='images/hero_truck.jpg') }}" 
+                         alt="Long-Haul Transport" 
+                         class="absolute inset-0 w-full h-full object-cover">
+                </div>
+            </div>
+
+            <!-- Fleet Management -->
+            <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
+                <div class="relative h-[300px] rounded-lg overflow-hidden shadow-xl order-2 md:order-1 opacity-0 translate-x-[-50px] transition-all duration-700 service-image">
+                    <img src="{{ url_for('static', filename='images/fleet_tracking_room.jpg') }}" 
+                         alt="Fleet Management" 
+                         class="absolute inset-0 w-full h-full object-cover">
+                </div>
+                <div class="order-1 md:order-2 opacity-0 translate-x-[50px] transition-all duration-700 service-content">
+                    <h3 class="text-2xl font-bold text-brand-primary mb-4">Smart Fleet Management</h3>
+                    <p class="text-brand-text mb-6">
+                        Optimize your logistics operations with our intelligent fleet management system. Get more value from every journey with:
+                    </p>
+                    <ul class="list-none text-brand-text mb-6 space-y-2">
+                        <li class="flex items-center"><i class="fas fa-check text-brand-accent mr-3"></i>Live vehicle tracking and monitoring</li>
+                        <li class="flex items-center"><i class="fas fa-check text-brand-accent mr-3"></i>Automated route optimization</li>
+                        <li class="flex items-center"><i class="fas fa-check text-brand-accent mr-3"></i>Fuel efficiency analytics</li>
+                        <li class="flex items-center"><i class="fas fa-check text-brand-accent mr-3"></i>Preventive maintenance alerts</li>
+                    </ul>
+                    <a href="{{ url_for('services') }}" 
+                       class="inline-flex items-center text-brand-primary hover:text-brand-primaryDark font-semibold transition-colors group">
+                        Learn More <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Route Optimization -->
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="opacity-0 translate-x-[-50px] transition-all duration-700 service-content">
+                    <h3 class="text-2xl font-bold text-brand-primary mb-4">Advanced Route Optimization</h3>
+                    <p class="text-brand-text mb-6">
+                        Save time and reduce costs with our AI-powered route optimization. Our system considers real-time factors to deliver:
+                    </p>
+                    <ul class="list-none text-brand-text mb-6 space-y-2">
+                        <li class="flex items-center"><i class="fas fa-check text-brand-accent mr-3"></i>Up to 30% reduction in fuel costs</li>
+                        <li class="flex items-center"><i class="fas fa-check text-brand-accent mr-3"></i>Faster delivery times</li>
+                        <li class="flex items-center"><i class="fas fa-check text-brand-accent mr-3"></i>Real-time traffic adaptation</li>
+                        <li class="flex items-center"><i class="fas fa-check text-brand-accent mr-3"></i>Reduced carbon footprint</li>
+                    </ul>
+                    <a href="{{ url_for('services') }}" 
+                       class="inline-flex items-center text-brand-primary hover:text-brand-primaryDark font-semibold transition-colors group">
+                        Learn More <i class="fas fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                </div>
+                <div class="relative h-[300px] rounded-lg overflow-hidden shadow-xl opacity-0 translate-x-[50px] transition-all duration-700 service-image">
+                    <img src="{{ url_for('static', filename='images/tracking_page_map.jpg') }}" 
+                         alt="Route Optimization" 
+                         class="absolute inset-0 w-full h-full object-cover">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-20 bg-brand-background">
+    <div class="container mx-auto px-4">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl font-bold text-brand-primary text-center mb-16 opacity-0 translate-y-8 transition-all duration-700 animate-section">What Our Clients Say</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition-shadow opacity-0 translate-y-8 transition-all duration-700 delay-100 testimonial-card">
+                    <div class="text-brand-accent mb-4">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-brand-text mb-6">"Segecha has transformed how we manage our supply chain. Their real-time tracking and professional service have helped us reduce costs while improving delivery times."</p>
+                    <div class="font-semibold text-brand-primary">Sarah M.</div>
+                    <div class="text-sm text-brand-muted">Operations Director, Kenya</div>
+                </div>
+                <div class="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition-shadow opacity-0 translate-y-8 transition-all duration-700 delay-200 testimonial-card">
+                    <div class="text-brand-accent mb-4">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-brand-text mb-6">"The level of transparency and reliability we get with Segecha is unmatched. Their cross-border expertise has been crucial for our business expansion."</p>
+                    <div class="font-semibold text-brand-primary">James K.</div>
+                    <div class="text-sm text-brand-muted">Logistics Manager, Tanzania</div>
+                </div>
+                <div class="bg-white p-8 rounded-lg shadow-lg hover:shadow-xl transition-shadow opacity-0 translate-y-8 transition-all duration-700 delay-300 testimonial-card">
+                    <div class="text-brand-accent mb-4">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-brand-text mb-6">"Their 24/7 support and advanced tracking system give us peace of mind. We always know exactly where our cargo is and when it will arrive."</p>
+                    <div class="font-semibold text-brand-primary">David R.</div>
+                    <div class="text-sm text-brand-muted">Supply Chain Head, Uganda</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-20 bg-white">
+    <div class="container mx-auto px-4">
+        <div class="max-w-6xl mx-auto">
+            <h2 class="text-3xl font-bold text-brand-primary text-center mb-16 opacity-0 translate-y-8 transition-all duration-700 animate-section">Delivering Results Across East Africa</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="bg-brand-background p-6 rounded-lg text-center shadow-md hover:shadow-lg transition-shadow opacity-0 scale-95 transition-all duration-700 delay-100 stat-card">
+                    <div class="text-4xl font-bold text-brand-primary mb-2">500+</div>
+                    <p class="text-brand-text">Satisfied Business Partners</p>
+                </div>
+                <div class="bg-brand-background p-6 rounded-lg text-center shadow-md hover:shadow-lg transition-shadow opacity-0 scale-95 transition-all duration-700 delay-200 stat-card">
+                    <div class="text-4xl font-bold text-brand-primary mb-2">7000+</div>
+                    <p class="text-brand-text">Monthly Deliveries</p>
+                </div>
+                <div class="bg-brand-background p-6 rounded-lg text-center shadow-md hover:shadow-lg transition-shadow opacity-0 scale-95 transition-all duration-700 delay-300 stat-card">
+                    <div class="text-4xl font-bold text-brand-primary mb-2">99.8%</div>
+                    <p class="text-brand-text">Delivery Success Rate</p>
+                </div>
+                <div class="bg-brand-background p-6 rounded-lg text-center shadow-md hover:shadow-lg transition-shadow opacity-0 scale-95 transition-all duration-700 delay-400 stat-card">
+                    <div class="text-4xl font-bold text-brand-primary mb-2">5+</div>
+                    <p class="text-brand-text">East African Countries</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-20 bg-brand-primary text-white">
+    <div class="container mx-auto px-4 text-center">
+        <div class="max-w-3xl mx-auto">
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to Transform Your Logistics?</h2>
+            <p class="text-xl text-white/90 mb-8">Join 500+ businesses who trust Segecha for their logistics needs. Get started today with:</p>
+            <ul class="text-lg mb-8 space-y-2">
+                <li class="flex items-center justify-center"><i class="fas fa-check text-brand-accent mr-2"></i>Free consultation with logistics experts</li>
+                <li class="flex items-center justify-center"><i class="fas fa-check text-brand-accent mr-2"></i>Customized solutions for your business</li>
+                <li class="flex items-center justify-center"><i class="fas fa-check text-brand-accent mr-2"></i>24/7 support and real-time tracking</li>
+            </ul>
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="{{ url_for('quote') }}" 
+                   class="bg-white text-brand-primary hover:bg-brand-accent hover:text-white px-8 py-4 rounded-lg font-semibold transition-all duration-200 btn-transition shadow-md">
+                    Get Your Free Quote Now
+                </a>
+                <a href="{{ url_for('contact') }}" 
+                   class="border-2 border-white text-white hover:bg-white/10 px-8 py-4 rounded-lg font-semibold transition-all duration-200 btn-transition">
+                    Schedule a Consultation
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{{ super() }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Create observers with different thresholds and animations
+    const headerObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('opacity-100', 'translate-y-0');
+                headerObserver.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+
+    const contentObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('opacity-100', 'translate-x-0');
+                contentObserver.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.2,
+        rootMargin: '0px 0px -100px 0px'
+    });
+
+    const fadeScaleObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('opacity-100', 'scale-100');
+                fadeScaleObserver.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+
+    // Observe headers
+    document.querySelectorAll('.service-header, .animate-section').forEach(header => {
+        headerObserver.observe(header);
+    });
+
+    // Observe content and images
+    document.querySelectorAll('.service-content, .service-image').forEach(element => {
+        contentObserver.observe(element);
+    });
+
+    // Observe testimonials
+    document.querySelectorAll('.testimonial-card').forEach(card => {
+        headerObserver.observe(card);
+    });
+
+    // Observe stats
+    document.querySelectorAll('.stat-card').forEach(stat => {
+        fadeScaleObserver.observe(stat);
+    });
+});
+</script>
+{% endblock %} 

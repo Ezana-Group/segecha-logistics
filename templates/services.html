@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Header Section -->
+<section class="bg-blue-900 text-white py-20">
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl font-bold mb-4">Our Services</h1>
+        <p class="text-xl">Comprehensive Long-Haul Transportation Solutions</p>
+    </div>
+</section>
+
+<!-- Services Grid -->
+<section class="py-16">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <!-- Long-Haul Freight -->
+            <div class="bg-white p-8 rounded-lg shadow-lg opacity-0 translate-y-8 transition-all duration-700 service-card">
+                <div class="relative h-[200px] mb-6 rounded-lg overflow-hidden">
+                    <img src="{{ url_for('static', filename='images/hero_truck.jpg') }}" 
+                         alt="Long-Haul Freight" 
+                         class="absolute inset-0 w-full h-full object-cover">
+                </div>
+                <h2 class="text-2xl font-bold mb-4">Long-Haul Freight</h2>
+                <p class="text-gray-600 mb-4">
+                    Our core service focuses on long-distance cargo transportation across Kenya and East Africa. 
+                    We handle various types of freight, ensuring safe and timely delivery to your destination.
+                </p>
+                <ul class="list-disc list-inside text-gray-600 mb-6">
+                    <li>Cross-border transportation</li>
+                    <li>Interstate freight services</li>
+                    <li>Dedicated fleet options</li>
+                    <li>Flexible scheduling</li>
+                </ul>
+                <a href="{{ url_for('quote') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
+                    Get a Quote <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+
+            <!-- Fleet Tracking & Dispatch -->
+            <div class="bg-white p-8 rounded-lg shadow-lg opacity-0 translate-y-8 transition-all duration-700 delay-100 service-card">
+                <div class="relative h-[200px] mb-6 rounded-lg overflow-hidden">
+                    <img src="{{ url_for('static', filename='images/gps_tracking_map.jpg') }}" 
+                         alt="Fleet Tracking" 
+                         class="absolute inset-0 w-full h-full object-cover">
+                </div>
+                <h2 class="text-2xl font-bold mb-4">Fleet Tracking & Dispatch</h2>
+                <p class="text-gray-600 mb-4">
+                    Stay informed about your shipment's location in real-time with our advanced GPS tracking 
+                    and dispatch system. Our technology ensures transparency and peace of mind.
+                </p>
+                <ul class="list-disc list-inside text-gray-600 mb-6">
+                    <li>Real-time GPS tracking</li>
+                    <li>24/7 dispatch support</li>
+                    <li>Route optimization</li>
+                    <li>Delivery status updates</li>
+                </ul>
+                <a href="{{ url_for('quote') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
+                    Learn More <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+
+            <!-- Cross-Border Transport -->
+            <div class="bg-white p-8 rounded-lg shadow-lg opacity-0 translate-y-8 transition-all duration-700 delay-200 service-card">
+                <div class="relative h-[200px] mb-6 rounded-lg overflow-hidden">
+                    <img src="{{ url_for('static', filename='images/border_checkpoint.jpg') }}" 
+                         alt="Cross-Border Transport" 
+                         class="absolute inset-0 w-full h-full object-cover">
+                </div>
+                <h2 class="text-2xl font-bold mb-4">Cross-Border Transport</h2>
+                <p class="text-gray-600 mb-4">
+                    Navigate the complexities of cross-border transportation with our expert team. 
+                    We handle all customs requirements and documentation for seamless international delivery.
+                </p>
+                <ul class="list-disc list-inside text-gray-600 mb-6">
+                    <li>Customs clearance</li>
+                    <li>Documentation handling</li>
+                    <li>Border crossing expertise</li>
+                    <li>International compliance</li>
+                </ul>
+                <a href="{{ url_for('quote') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
+                    Learn More <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+
+            <!-- Warehouse & Distribution -->
+            <div class="bg-white p-8 rounded-lg shadow-lg opacity-0 translate-y-8 transition-all duration-700 delay-300 service-card">
+                <div class="relative h-[200px] mb-6 rounded-lg overflow-hidden">
+                    <img src="{{ url_for('static', filename='images/warehouse_loading.jpg') }}" 
+                         alt="Warehouse & Distribution" 
+                         class="absolute inset-0 w-full h-full object-cover">
+                </div>
+                <h2 class="text-2xl font-bold mb-4">Warehouse & Distribution</h2>
+                <p class="text-gray-600 mb-4">
+                    Optimize your supply chain with our comprehensive warehouse and distribution solutions. 
+                    We offer secure storage and efficient distribution services.
+                </p>
+                <ul class="list-disc list-inside text-gray-600 mb-6">
+                    <li>Secure storage facilities</li>
+                    <li>Inventory management</li>
+                    <li>Distribution services</li>
+                    <li>Last-mile delivery</li>
+                </ul>
+                <a href="{{ url_for('quote') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
+                    Learn More <i class="fas fa-arrow-right ml-2"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-16 bg-blue-900 text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-6">Ready to Get Started?</h2>
+        <p class="text-xl mb-8">Let us handle your transportation needs with the reliability you deserve.</p>
+        <a href="{{ url_for('quote') }}" class="bg-white text-blue-900 hover:bg-blue-100 font-bold py-3 px-8 rounded-lg transition-colors">
+            Request a Quote
+        </a>
+    </div>
+</section>
+
+{% block extra_js %}
+<script>
+// Initialize Intersection Observer
+document.addEventListener('DOMContentLoaded', function() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('opacity-100', 'translate-y-0');
+                observer.unobserve(entry.target); // Stop observing once animated
+            }
+        });
+    }, {
+        threshold: 0.1, // Trigger when 10% of the element is visible
+        rootMargin: '0px 0px -50px 0px' // Trigger slightly before the element comes into view
+    });
+
+    // Observe all service cards
+    document.querySelectorAll('.service-card').forEach(card => {
+        observer.observe(card);
+    });
+});
+</script>
+{% endblock %}
+
+{% endblock %} 

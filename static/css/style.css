@@ -1,0 +1,342 @@
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Smooth Scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Image Hover Effects */
+.hover-zoom {
+    transition: transform 0.3s ease;
+}
+
+.hover-zoom:hover {
+    transform: scale(1.05);
+}
+
+/* Custom Animations */
+@keyframes fadeIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+@keyframes slideUp {
+    from { 
+        opacity: 0;
+        transform: translateY(40px); 
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0); 
+    }
+}
+
+@keyframes gradient {
+    0% { opacity: 0.6; }
+    50% { opacity: 0.8; }
+    100% { opacity: 0.6; }
+}
+
+@keyframes scroll {
+    0% { transform: translateY(0); opacity: 1; }
+    50% { transform: translateY(6px); opacity: 0.5; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Hero Section Animations */
+.hero-content {
+    animation: fadeIn 1s ease-out;
+}
+
+.animate-fadeIn {
+    animation: fadeIn 1s ease-out forwards;
+}
+
+.animate-slideUp {
+    animation: slideUp 1s ease-out 0.3s forwards;
+    opacity: 0;
+}
+
+.animate-gradient {
+    animation: gradient 4s ease-in-out infinite;
+}
+
+.animate-scroll {
+    animation: scroll 2s ease-in-out infinite;
+}
+
+/* Smooth Transitions */
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+/* Custom Button Styles */
+.btn-primary {
+    @apply bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold transition-all;
+}
+
+.btn-primary:hover {
+    @apply bg-blue-700 transform scale-105;
+}
+
+.btn-secondary {
+    @apply border-2 border-blue-600 text-blue-600 px-6 py-3 rounded-lg font-semibold transition-all;
+}
+
+.btn-secondary:hover {
+    @apply bg-blue-50 transform scale-105;
+}
+
+/* Card Hover Effects */
+.hover-card {
+    @apply transition-all duration-300;
+}
+
+.hover-card:hover {
+    @apply transform -translate-y-2 shadow-xl;
+}
+
+/* Navigation Dropdown */
+.nav-dropdown {
+    @apply absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg overflow-hidden invisible opacity-0 transition-all duration-300;
+}
+
+.nav-item:hover .nav-dropdown {
+    @apply visible opacity-100;
+}
+
+/* Custom Focus Styles */
+.custom-focus:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+
+/* Loading Spinner */
+.loading-spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3b82f6;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Custom Button Styles */
+.btn-hover-effect {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-hover-effect::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s ease, height 0.3s ease;
+}
+
+.btn-hover-effect:hover::after {
+    width: 200%;
+    height: 200%;
+}
+
+/* Custom Form Styles */
+.form-input-icon {
+    position: relative;
+}
+
+.form-input-icon i {
+    position: absolute;
+    top: 50%;
+    left: 1rem;
+    transform: translateY(-50%);
+    color: #6b7280;
+}
+
+.form-input-icon input {
+    padding-left: 2.5rem;
+}
+
+/* Responsive Typography */
+@media (max-width: 640px) {
+    h1 {
+        font-size: 1.875rem;
+    }
+    h2 {
+        font-size: 1.5rem;
+    }
+    h3 {
+        font-size: 1.25rem;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .no-print {
+        display: none;
+    }
+    
+    .print-only {
+        display: block;
+    }
+    
+    body {
+        font-size: 12pt;
+    }
+}
+
+/* Flash Messages */
+.flash-message {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 50;
+    animation: fadeOut 5s forwards;
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Mobile Menu */
+.mobile-menu-hidden {
+    display: none;
+}
+
+/* Loading States */
+.loading {
+    @apply relative pointer-events-none opacity-75;
+}
+
+.loading::after {
+    content: '';
+    @apply absolute inset-0 bg-white bg-opacity-50;
+}
+
+/* Form Elements */
+.form-input {
+    @apply w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all;
+}
+
+.form-label {
+    @apply block text-gray-700 font-semibold mb-2;
+}
+
+/* Stats Animation */
+.stat-number {
+    @apply transition-all duration-1000;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.stat-number.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Image Hover Effects */
+.image-zoom {
+    @apply transition-transform duration-500;
+}
+
+.image-zoom:hover {
+    @apply transform scale-110;
+}
+
+/* Section Spacing */
+.section-padding {
+    @apply py-16 md:py-24;
+}
+
+/* Typography */
+.heading-xl {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold;
+}
+
+.heading-lg {
+    @apply text-3xl md:text-4xl font-bold;
+}
+
+.heading-md {
+    @apply text-2xl md:text-3xl font-bold;
+}
+
+/* Responsive Helpers */
+.container-narrow {
+    @apply max-w-4xl mx-auto px-4;
+}
+
+.container-wide {
+    @apply max-w-7xl mx-auto px-4;
+}
+
+/* Footer Styles */
+.footer-link {
+    @apply text-gray-400 hover:text-white transition-colors;
+}
+
+.social-icon {
+    @apply w-10 h-10 rounded-full flex items-center justify-center transition-colors;
+}
+
+/* Custom Shadows */
+.shadow-custom {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Gradient Backgrounds */
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+}
+
+/* Custom Border Radius */
+.rounded-xl-custom {
+    border-radius: 1rem;
+}
+
+/* Custom Z-index Layers */
+.z-nav {
+    z-index: 100;
+}
+
+.z-modal {
+    z-index: 200;
+}
+
+.z-tooltip {
+    z-index: 300;
+} 

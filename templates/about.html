@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Header Section -->
+<section class="bg-blue-900 text-white py-20">
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl font-bold mb-4 opacity-0 translate-y-8 transition-all duration-700 animate-header">About Segecha Group Ltd.</h1>
+        <p class="text-xl opacity-0 translate-y-8 transition-all duration-700 delay-100 animate-header">Your Trusted Partner in Long-Haul Transportation</p>
+    </div>
+</section>
+
+<!-- Company Background -->
+<section class="py-16">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div class="opacity-0 translate-x-[-50px] transition-all duration-700 about-content">
+                <h2 class="text-3xl font-bold mb-6">Our Story</h2>
+                <p class="text-gray-600 mb-4">
+                    Segecha Group Ltd. has established itself as a leading provider of long-haul freight 
+                    transportation services in East Africa. With years of experience in the logistics industry, 
+                    we've built a reputation for reliability, efficiency, and exceptional customer service.
+                </p>
+                <p class="text-gray-600 mb-4">
+                    Our modern fleet of trucks, combined with state-of-the-art tracking technology and 
+                    experienced drivers, ensures that your cargo reaches its destination safely and on time, 
+                    every time.
+                </p>
+                <p class="text-gray-600">
+                    We understand the unique challenges of transportation in East Africa and have developed 
+                    robust solutions to meet these challenges head-on.
+                </p>
+            </div>
+            <div class="relative h-[400px] opacity-0 translate-x-[50px] transition-all duration-700 about-image">
+                <img src="{{ url_for('static', filename='images/fleet_africa.jpg') }}" 
+                     alt="Segecha Fleet" 
+                     class="absolute inset-0 w-full h-full object-cover rounded-lg shadow-xl">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Our Advantages -->
+<section class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12 opacity-0 translate-y-8 transition-all duration-700 animate-section">Why Choose Segecha</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white p-6 rounded-lg shadow-lg opacity-0 translate-y-8 transition-all duration-700 delay-100 advantage-card">
+                <div class="text-4xl text-blue-600 mb-4">
+                    <i class="fas fa-truck"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-4">Modern Fleet</h3>
+                <p class="text-gray-600">
+                    Our well-maintained fleet of trucks ensures reliable and efficient transportation.
+                </p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-lg opacity-0 translate-y-8 transition-all duration-700 delay-200 advantage-card">
+                <div class="text-4xl text-blue-600 mb-4">
+                    <i class="fas fa-globe-africa"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-4">Regional Coverage</h3>
+                <p class="text-gray-600">
+                    Extensive network covering major routes across East Africa.
+                </p>
+            </div>
+            <div class="bg-white p-6 rounded-lg shadow-lg opacity-0 translate-y-8 transition-all duration-700 delay-300 advantage-card">
+                <div class="text-4xl text-blue-600 mb-4">
+                    <i class="fas fa-route"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-4">Route Optimization</h3>
+                <p class="text-gray-600">
+                    Advanced route planning ensures efficient delivery while minimizing costs.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section class="py-16">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div class="relative h-[400px] opacity-0 translate-x-[-50px] transition-all duration-700 team-image">
+                <img src="{{ url_for('static', filename='images/team_dispatch.jpg') }}" 
+                     alt="Segecha Team" 
+                     class="absolute inset-0 w-full h-full object-cover rounded-lg shadow-xl">
+            </div>
+            <div class="opacity-0 translate-x-[50px] transition-all duration-700 team-content">
+                <h2 class="text-3xl font-bold mb-6">Our Team</h2>
+                <p class="text-gray-600 mb-4">
+                    Behind every successful delivery is our dedicated team of professionals. From our 
+                    experienced drivers to our skilled dispatchers and customer service representatives, 
+                    we work together to ensure excellence in every aspect of our operations.
+                </p>
+                <p class="text-gray-600">
+                    Our team undergoes regular training and development programs to stay updated with 
+                    the latest industry standards and best practices in logistics and transportation.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-16 bg-blue-900 text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-6 opacity-0 translate-y-8 transition-all duration-700 animate-section">Experience the Segecha Difference</h2>
+        <p class="text-xl mb-8 opacity-0 translate-y-8 transition-all duration-700 delay-100 animate-section">Let us handle your long-haul transportation needs with the reliability you deserve.</p>
+        <a href="{{ url_for('quote') }}" class="bg-white text-blue-900 hover:bg-blue-100 font-bold py-3 px-8 rounded-lg transition-colors opacity-0 translate-y-8 transition-all duration-700 delay-200 animate-section">
+            Request a Quote
+        </a>
+    </div>
+</section>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Create observers with different animations
+    const fadeUpObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('opacity-100', 'translate-y-0');
+                fadeUpObserver.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+
+    const slideObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('opacity-100', 'translate-x-0');
+                slideObserver.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.2,
+        rootMargin: '0px 0px -100px 0px'
+    });
+
+    // Observe header elements
+    document.querySelectorAll('.animate-header, .animate-section').forEach(element => {
+        fadeUpObserver.observe(element);
+    });
+
+    // Observe content sections
+    document.querySelectorAll('.about-content, .about-image, .team-content, .team-image').forEach(element => {
+        slideObserver.observe(element);
+    });
+
+    // Observe advantage cards
+    document.querySelectorAll('.advantage-card').forEach(card => {
+        fadeUpObserver.observe(card);
+    });
+});
+</script>
+{% endblock %}
+
+{% endblock %} 
