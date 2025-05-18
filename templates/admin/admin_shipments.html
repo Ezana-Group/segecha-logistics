@@ -34,6 +34,12 @@
             </a>
         </div>
 
+        <!-- Add download buttons with icons above the table -->
+        <div class="flex justify-end mb-4">
+            <button onclick="exportShipments('csv')" class="mr-2 px-3 py-2 bg-gray-100 rounded-md text-sm" title="Download CSV"><i class="fas fa-file-csv"></i></button>
+            <button onclick="exportShipments('excel')" class="px-3 py-2 bg-gray-100 rounded-md text-sm" title="Download Excel"><i class="fas fa-file-excel"></i></button>
+        </div>
+
         <!-- Enhanced Search and Filter Section -->
         <div class="mt-6 bg-white rounded-lg shadow p-6">
             <form method="GET" class="grid grid-cols-1 gap-4 md:grid-cols-6">

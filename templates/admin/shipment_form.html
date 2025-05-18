@@ -89,28 +89,31 @@
             <div class="p-6">
                 <h2 class="text-lg font-medium text-gray-900 mb-4">Pickup Location</h2>
                 <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                    <div class="sm:col-span-6">
-                        <div class="location-input-container">
-                            <label for="pickup_location" class="block text-sm font-medium text-gray-700">Pickup Location</label>
-                            <div class="flex gap-2">
-                                <input type="text" name="pickup_location" id="pickup_location" required
-                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                       value="{% if shipment %}{{ shipment.pickup_location }}{% elif quote_request %}{{ quote_request.pickup_location }}{% endif %}">
-                                <button type="button" class="location-pin-button" onclick="startLocationSelection('pickup')">
-                                    <i class="fas fa-map-marker-alt text-blue-600"></i> Pin on Map
-                                </button>
-                            </div>
-                        </div>
+                    <div class="sm:col-span-2">
+                        <label for="pickup_country" class="block text-sm font-medium text-gray-700">Country</label>
+                        <select name="pickup_country" id="pickup_country" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Select Country</option>
+                            {% for country in countries %}
+                            <option value="{{ country }}" {% if shipment and shipment.pickup_country == country %}selected{% endif %}>{{ country }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
-
-                    <input type="hidden" 
-                           name="pickup_lat" 
-                           id="pickup_lat" 
-                           value="{% if shipment %}{{ shipment.pickup_lat }}{% elif quote_request %}{{ quote_request.pickup_lat }}{% endif %}">
-                    <input type="hidden" 
-                           name="pickup_lng" 
-                           id="pickup_lng" 
-                           value="{% if shipment %}{{ shipment.pickup_lng }}{% elif quote_request %}{{ quote_request.pickup_lng }}{% endif %}">
+                    <div class="sm:col-span-2">
+                        <label for="pickup_city" class="block text-sm font-medium text-gray-700">City</label>
+                        <select name="pickup_city" id="pickup_city" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Select City</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2 relative">
+                        <label for="pickup_address" class="block text-sm font-medium text-gray-700">Address</label>
+                        <input type="text" name="pickup_address" id="pickup_address" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" value="{% if shipment %}{{ shipment.pickup_address }}{% elif quote_request %}{{ quote_request.pickup_address }}{% endif %}" oninput="searchAddress('pickup')">
+                        <div id="pickup_suggestions" class="location-suggestions"></div>
+                    </div>
+                    <input type="hidden" name="pickup_lat" id="pickup_lat" value="{% if shipment %}{{ shipment.pickup_lat }}{% elif quote_request %}{{ quote_request.pickup_lat }}{% endif %}">
+                    <input type="hidden" name="pickup_lng" id="pickup_lng" value="{% if shipment %}{{ shipment.pickup_lng }}{% elif quote_request %}{{ quote_request.pickup_lng }}{% endif %}">
+                    <div class="sm:col-span-6 mt-2">
+                        <button type="button" class="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200" onclick="enablePinOnMap('pickup')"><i class="fas fa-map-marker-alt"></i> Pin on Map</button>
+                    </div>
                 </div>
             </div>
 
@@ -121,28 +124,31 @@
                     Drop-off Location
                 </h2>
                 <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
-                    <div class="sm:col-span-6">
-                        <div class="location-input-container">
-                            <label for="dropoff_location" class="block text-sm font-medium text-gray-700">Dropoff Location</label>
-                            <div class="flex gap-2">
-                                <input type="text" name="dropoff_location" id="dropoff_location" required
-                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                       value="{% if shipment %}{{ shipment.dropoff_location }}{% elif quote_request %}{{ quote_request.dropoff_location }}{% endif %}">
-                                <button type="button" class="location-pin-button" onclick="startLocationSelection('dropoff')">
-                                    <i class="fas fa-map-marker-alt text-blue-600"></i> Pin on Map
-                                </button>
-                            </div>
-                        </div>
+                    <div class="sm:col-span-2">
+                        <label for="dropoff_country" class="block text-sm font-medium text-gray-700">Country</label>
+                        <select name="dropoff_country" id="dropoff_country" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Select Country</option>
+                            {% for country in countries %}
+                            <option value="{{ country }}" {% if shipment and shipment.dropoff_country == country %}selected{% endif %}>{{ country }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
-
-                    <input type="hidden" 
-                           name="dropoff_lat" 
-                           id="dropoff_lat" 
-                           value="{% if shipment %}{{ shipment.dropoff_lat }}{% elif quote_request %}{{ quote_request.dropoff_lat }}{% endif %}">
-                    <input type="hidden" 
-                           name="dropoff_lng" 
-                           id="dropoff_lng" 
-                           value="{% if shipment %}{{ shipment.dropoff_lng }}{% elif quote_request %}{{ quote_request.dropoff_lng }}{% endif %}">
+                    <div class="sm:col-span-2">
+                        <label for="dropoff_city" class="block text-sm font-medium text-gray-700">City</label>
+                        <select name="dropoff_city" id="dropoff_city" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Select City</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-2 relative">
+                        <label for="dropoff_address" class="block text-sm font-medium text-gray-700">Address</label>
+                        <input type="text" name="dropoff_address" id="dropoff_address" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" value="{% if shipment %}{{ shipment.dropoff_address }}{% elif quote_request %}{{ quote_request.dropoff_address }}{% endif %}" oninput="searchAddress('dropoff')">
+                        <div id="dropoff_suggestions" class="location-suggestions"></div>
+                    </div>
+                    <input type="hidden" name="dropoff_lat" id="dropoff_lat" value="{% if shipment %}{{ shipment.dropoff_lat }}{% elif quote_request %}{{ quote_request.dropoff_lat }}{% endif %}">
+                    <input type="hidden" name="dropoff_lng" id="dropoff_lng" value="{% if shipment %}{{ shipment.dropoff_lng }}{% elif quote_request %}{{ quote_request.dropoff_lng }}{% endif %}">
+                    <div class="sm:col-span-6 mt-2">
+                        <button type="button" class="px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200" onclick="enablePinOnMap('dropoff')"><i class="fas fa-map-marker-alt"></i> Pin on Map</button>
+                    </div>
                 </div>
             </div>
 
@@ -177,6 +183,36 @@
                                   rows="3"
                                   required
                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{% if shipment %}{{ shipment.cargo_description }}{% elif quote_request %}{{ quote_request.cargo_description }}{% endif %}</textarea>
+                    </div>
+
+                    <!-- Add after cargo_description -->
+                    <div class="sm:col-span-3">
+                        <label for="weight" class="block text-sm font-medium text-gray-700">Weight</label>
+                        <input type="text" name="weight" id="weight" value="{{ shipment.weight if shipment else '' }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div class="sm:col-span-3">
+                        <label for="dimensions" class="block text-sm font-medium text-gray-700">Dimensions</label>
+                        <input type="text" name="dimensions" id="dimensions" value="{{ shipment.dimensions if shipment else '' }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div class="sm:col-span-3">
+                        <label for="cargo_type" class="block text-sm font-medium text-gray-700">Type</label>
+                        <input type="text" name="cargo_type" id="cargo_type" value="{{ shipment.cargo_type if shipment else '' }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div class="sm:col-span-3">
+                        <label for="volume" class="block text-sm font-medium text-gray-700">Volume (m³)</label>
+                        <input type="text" name="volume" id="volume" value="{{ shipment.volume if shipment else '' }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    </div>
+                    <div class="sm:col-span-3">
+                        <label for="is_insured" class="block text-sm font-medium text-gray-700">Insurance</label>
+                        <select name="is_insured" id="is_insured" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                            <option value="">Select</option>
+                            <option value="1" {% if shipment and shipment.is_insured %}selected{% endif %}>Insured</option>
+                            <option value="0" {% if shipment and not shipment.is_insured %}selected{% endif %}>Not Insured</option>
+                        </select>
+                    </div>
+                    <div class="sm:col-span-3">
+                        <label for="insurance_price" class="block text-sm font-medium text-gray-700">Insurance Price</label>
+                        <input type="text" name="insurance_price" id="insurance_price" value="{{ shipment.insurance_price if shipment else '' }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
                     </div>
 
                     <!-- Pickup Details Section -->
@@ -336,7 +372,7 @@ function initMap() {
 }
 
 function setupLocationSearch(type) {
-    const input = document.getElementById(`${type}_location`);
+    const input = document.getElementById(`${type}_address`);
     const suggestions = document.getElementById(`${type}_suggestions`);
 
     input.addEventListener('input', function() {
@@ -390,7 +426,7 @@ async function searchLocation(query, type) {
 }
 
 function selectLocation(location, type) {
-    const input = document.getElementById(`${type}_location`);
+    const input = document.getElementById(`${type}_address`);
     const lat = document.getElementById(`${type}_lat`);
     const lng = document.getElementById(`${type}_lng`);
     const suggestions = document.getElementById(`${type}_suggestions`);
