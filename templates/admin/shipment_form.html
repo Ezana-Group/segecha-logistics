@@ -91,15 +91,15 @@
                 <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
                     <div class="sm:col-span-6">
                         <div class="location-input-container">
-                            <label for="pickup_location" class="block text-sm font-medium text-gray-700">Location</label>
-                            <input type="text" 
-                                   name="pickup_location" 
-                                   id="pickup_location"
-                                   value="{% if shipment %}{{ shipment.pickup_location }}{% elif quote_request %}{{ quote_request.pickup_location }}{% endif %}"
-                                   required
-                                   autocomplete="off"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            <div id="pickup_suggestions" class="location-suggestions"></div>
+                            <label for="pickup_location" class="block text-sm font-medium text-gray-700">Pickup Location</label>
+                            <div class="flex gap-2">
+                                <input type="text" name="pickup_location" id="pickup_location" required
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                       value="{% if shipment %}{{ shipment.pickup_location }}{% elif quote_request %}{{ quote_request.pickup_location }}{% endif %}">
+                                <button type="button" class="location-pin-button" onclick="startLocationSelection('pickup')">
+                                    <i class="fas fa-map-marker-alt text-blue-600"></i> Pin on Map
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -123,15 +123,15 @@
                 <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
                     <div class="sm:col-span-6">
                         <div class="location-input-container">
-                            <label for="dropoff_location" class="block text-sm font-medium text-gray-700">Location</label>
-                            <input type="text" 
-                                   name="dropoff_location" 
-                                   id="dropoff_location"
-                                   value="{% if shipment %}{{ shipment.dropoff_location }}{% elif quote_request %}{{ quote_request.dropoff_location }}{% endif %}"
-                                   required
-                                   autocomplete="off"
-                                   class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                            <div id="dropoff_suggestions" class="location-suggestions"></div>
+                            <label for="dropoff_location" class="block text-sm font-medium text-gray-700">Dropoff Location</label>
+                            <div class="flex gap-2">
+                                <input type="text" name="dropoff_location" id="dropoff_location" required
+                                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                       value="{% if shipment %}{{ shipment.dropoff_location }}{% elif quote_request %}{{ quote_request.dropoff_location }}{% endif %}">
+                                <button type="button" class="location-pin-button" onclick="startLocationSelection('dropoff')">
+                                    <i class="fas fa-map-marker-alt text-blue-600"></i> Pin on Map
+                                </button>
+                            </div>
                         </div>
                     </div>
 

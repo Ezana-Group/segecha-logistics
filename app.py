@@ -185,17 +185,19 @@ def admin_shipments():
 
 @app.route('/admin/new-shipment', methods=['GET', 'POST'])
 def new_shipment():
+    quote_request = None
+    quote_request_id = request.args.get('quote_request_id')
+    if quote_request_id:
+        quote_request = QuoteRequest.query.get(quote_request_id)
     if request.method == 'POST':
         try:
             # Parse dates
             pickup_date = None
             if request.form.get('pickup_date'):
                 pickup_date = datetime.strptime(request.form.get('pickup_date'), '%Y-%m-%d')
-            
             estimated_delivery = None
             if request.form.get('estimated_delivery'):
                 estimated_delivery = datetime.strptime(request.form.get('estimated_delivery'), '%Y-%m-%dT%H:%M')
-
             # Create new shipment
             shipment = Shipment(
                 customer_name=request.form['customer_name'],
@@ -213,20 +215,18 @@ def new_shipment():
                 pickup_notes=request.form.get('pickup_notes'),
                 status=request.form.get('status', 'Pending'),
                 estimated_delivery=estimated_delivery,
-                notes=request.form.get('notes')
+                notes=request.form.get('notes'),
+                quote_request_id=quote_request.id if quote_request else None
             )
-            
             db.session.add(shipment)
             db.session.commit()
-            
             flash('Shipment created successfully!', 'success')
             return redirect(url_for('admin_shipments'))
         except Exception as e:
             db.session.rollback()
             flash(f'Error creating shipment: {str(e)}', 'error')
             return redirect(url_for('new_shipment'))
-            
-    return render_template('admin/shipment_form.html', shipment=None, quote_request=None, now=datetime.now())
+    return render_template('admin/shipment_form.html', shipment=None, quote_request=quote_request, now=datetime.now())
 
 @app.route('/admin/edit-shipment/<int:id>', methods=['GET', 'POST'])
 def edit_shipment(id):
@@ -364,6 +364,17 @@ def admin_new_quote():
                          now=datetime.now(), 
                          countries=countries, 
                          EAST_AFRICAN_CITIES=EAST_AFRICAN_CITIES)
+
+@app.route('/admin/mark_reviewed/<int:quote_id>', methods=['POST'])
+def mark_reviewed(quote_id):
+    quote = QuoteRequest.query.get_or_404(quote_id)
+    try:
+        quote.reviewed = not quote.reviewed
+        db.session.commit()
+        return jsonify({'success': True, 'reviewed': quote.reviewed})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'success': False, 'error': str(e)})
 
 # Remove or comment out the /admin_login route and any related logic
 # @app.route('/admin_login', methods=['GET', 'POST'])
