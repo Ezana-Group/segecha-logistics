@@ -9,21 +9,19 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
     
-    # Normalize DATABASE_URL
+    # Fix legacy Heroku-style URLs
     raw_db_url = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'instance', 'database.db')
     if raw_db_url.startswith("postgres://"):
         raw_db_url = raw_db_url.replace("postgres://", "postgresql://")
-    if "psycopg2binary" in raw_db_url:
-        raw_db_url = raw_db_url.replace("psycopg2binary", "psycopg2")
-
+    
     SQLALCHEMY_DATABASE_URI = raw_db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # Admin credentials
     ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL') or 'admin@segecha.com'
-    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD') or 'admin123'  # Change in production!
+    ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD') or 'admin123'
     
-    # Email configuration
+    # Email config
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
     MAIL_PORT = int(os.environ.get('MAIL_PORT', 587))
     MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS', True)
@@ -31,8 +29,5 @@ class Config:
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'info@segecha.com')
     
-    # WhatsApp number
     WHATSAPP_NUMBER = os.environ.get('WHATSAPP_NUMBER') or '254700000000'
-    
-    # Session config
     PERMANENT_SESSION_LIFETIME = timedelta(minutes=30)
