@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_migrate import Migrate
 from datetime import datetime
@@ -159,11 +158,20 @@ def send_confirmation_email(quote_request):
     except Exception as e:
         print(f"Email send error: {e}")
 
+@app.route('/contact')
+def contact():
+    return render_template('contact.html', now=datetime.now())
+
 @app.after_request
 def add_cache_control(response):
     if request.path.startswith('/static/'):
         response.headers['Cache-Control'] = 'public, max-age=31536000'
     return response
+
+# Remove or comment out the /admin_login route and any related logic
+# @app.route('/admin_login', methods=['GET', 'POST'])
+# def admin_login():
+#     ...
 
 if __name__ == '__main__':
     app.run(debug=True, port=10000)
