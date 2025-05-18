@@ -366,6 +366,68 @@ def admin_new_quote():
                          countries=countries, 
                          EAST_AFRICAN_CITIES=EAST_AFRICAN_CITIES)
 
+@app.route('/admin/edit-quote/<int:id>', methods=['GET', 'POST'])
+def edit_quote(id):
+    quote = QuoteRequest.query.get_or_404(id)
+    
+    if request.method == 'POST':
+        try:
+            preferred_date = None
+            if request.form.get('preferred_date'):
+                preferred_date = datetime.strptime(request.form.get('preferred_date'), '%Y-%m-%d').date()
+
+            pickup_location = f"{request.form.get('pickup_address')}, {request.form.get('pickup_city')}, {request.form.get('pickup_country')}"
+            dropoff_location = f"{request.form.get('dropoff_address')}, {request.form.get('dropoff_city')}, {request.form.get('dropoff_country')}"
+
+            # Update quote fields
+            quote.name = request.form['name']
+            quote.company = request.form.get('company')
+            quote.email = request.form['email']
+            quote.phone = request.form['phone']
+            quote.pickup_location = pickup_location
+            quote.pickup_lat = float(request.form.get('pickup_lat', 0))
+            quote.pickup_lng = float(request.form.get('pickup_lng', 0))
+            quote.dropoff_location = dropoff_location
+            quote.dropoff_lat = float(request.form.get('dropoff_lat', 0))
+            quote.dropoff_lng = float(request.form.get('dropoff_lng', 0))
+            quote.estimated_distance = float(request.form.get('estimated_distance', 0))
+            quote.cargo_description = request.form['cargo_description']
+            quote.preferred_date = preferred_date
+            quote.additional_notes = request.form.get('additional_notes')
+            
+            db.session.commit()
+            flash('Quote updated successfully!', 'success')
+            return redirect(url_for('admin_dashboard'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Error updating quote: {str(e)}', 'error')
+            return redirect(url_for('edit_quote', id=id))
+    
+    # Parse the pickup and dropoff locations to get address components
+    pickup_parts = quote.pickup_location.split(', ')
+    dropoff_parts = quote.dropoff_location.split(', ')
+    
+    pickup_address = pickup_parts[0] if len(pickup_parts) > 0 else ''
+    pickup_city = pickup_parts[1] if len(pickup_parts) > 1 else ''
+    pickup_country = pickup_parts[2] if len(pickup_parts) > 2 else ''
+    
+    dropoff_address = dropoff_parts[0] if len(dropoff_parts) > 0 else ''
+    dropoff_city = dropoff_parts[1] if len(dropoff_parts) > 1 else ''
+    dropoff_country = dropoff_parts[2] if len(dropoff_parts) > 2 else ''
+    
+    countries = list(EAST_AFRICAN_CITIES.keys())
+    return render_template('admin/edit_quote.html',
+                         quote=quote,
+                         pickup_address=pickup_address,
+                         pickup_city=pickup_city,
+                         pickup_country=pickup_country,
+                         dropoff_address=dropoff_address,
+                         dropoff_city=dropoff_city,
+                         dropoff_country=dropoff_country,
+                         now=datetime.now(),
+                         countries=countries,
+                         EAST_AFRICAN_CITIES=EAST_AFRICAN_CITIES)
+
 @app.route('/admin/mark_reviewed/<int:quote_id>', methods=['POST'])
 def mark_reviewed(quote_id):
     quote = QuoteRequest.query.get_or_404(quote_id)
