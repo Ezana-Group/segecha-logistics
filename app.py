@@ -15,8 +15,7 @@ from datetime import timedelta
 app = Flask(__name__)
 app.config.from_object(Config)
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000, debug=True)
+
 # Initialize extensions
 db.init_app(app)
 migrate = Migrate(app, db)
@@ -454,3 +453,5 @@ def add_cache_control(response):
     return response
 #if __name__ == '__main__':
     # app.run(debug=True) 
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000, debug=True)
