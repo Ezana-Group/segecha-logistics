@@ -9,13 +9,14 @@ from database import db, Admin, QuoteRequest, Shipment
 from cities import EAST_AFRICAN_CITIES
 from flask_mail import Mail, Message
 from commands import init_db_command
+from flask import make_response, send_from_directory, request
+from datetime import timedelta
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
-
+    app.run(host="0.0.0.0", port=10000, debug=True)
 # Initialize extensions
 db.init_app(app)
 migrate = Migrate(app, db)
@@ -446,5 +447,10 @@ def mark_shipment_delivered(id):
         flash('Error updating shipment status.', 'error')
     return redirect(url_for('admin_shipments'))
 
-if __name__ == '__main__':
-    app.run(debug=True) 
+@app.after_request
+def add_cache_control(response):
+    if request.path.startswith('/static/'):
+        response.headers['Cache-Control'] = 'public, max-age=31536000'
+    return response
+#if __name__ == '__main__':
+    # app.run(debug=True) 
