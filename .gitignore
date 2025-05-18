@@ -6,6 +6,3 @@ __pycache__/
 instance/
 *.sqlite
 *.db
-static/images/
-static/images/
-static/images/
