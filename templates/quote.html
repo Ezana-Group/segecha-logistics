@@ -1419,18 +1419,25 @@ function generateGreatCircle(start, end) {
 
 async function getRoadRoute(start, end) {
     try {
-        const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=polyline`);
+        const params = new URLSearchParams({
+            start_lng: start.lng,
+            start_lat: start.lat,
+            end_lng: end.lng,
+            end_lat: end.lat
+        });
+        
+        const response = await fetch(`/get_route?${params}`);
         const data = await response.json();
         
-        if (data.code !== 'Ok' || !data.routes || !data.routes[0]) {
-            throw new Error('Unable to get road route');
+        if (!data.success) {
+            throw new Error(data.error || 'Unable to get road route');
         }
         
         // Decode the polyline
-        const points = L.Polyline.fromEncoded(data.routes[0].geometry).getLatLngs();
+        const points = L.Polyline.fromEncoded(data.geometry).getLatLngs();
         return {
             points: points,
-            distance: data.routes[0].distance / 1000 // Convert to kilometers
+            distance: data.distance // Already in kilometers
         };
     } catch (error) {
         console.error('Error getting road route:', error);
@@ -1712,14 +1719,14 @@ async function searchAddress(query) {
     try {
         // Get the current map bounds to bias the search
         const bounds = popupMap.getBounds();
-        const viewportString = `&viewbox=${bounds.getWest()},${bounds.getNorth()},${bounds.getEast()},${bounds.getSouth()}`;
         
-        const response = await fetch(
-            `https://nominatim.openstreetmap.org/search?` +
-            `format=json&q=${encodeURIComponent(query)}` +
-            `&addressdetails=1${viewportString}&bounded=1`
-        );
-        const data = await response.json();
+        const params = new URLSearchParams({
+            query: query,
+            country: ''  // We can add country filter if needed
+        });
+        
+        const response = await fetch(`/search_address?${params}`);
+        const results = await response.json();
         
         // Hide loading indicator
         const searchLoading = document.querySelector('.map-search-loading');
@@ -1731,12 +1738,12 @@ async function searchAddress(query) {
         // Clear previous results
         searchResults.innerHTML = '';
         
-        if (data.length > 0) {
+        if (results.length > 0) {
             // Show results container
             searchResults.style.display = 'block';
             
             // Add results
-            data.slice(0, 5).forEach(result => {
+            results.slice(0, 5).forEach(result => {
                 const div = document.createElement('div');
                 div.className = 'map-search-result hover:bg-gray-100 cursor-pointer';
                 div.textContent = result.display_name;
@@ -1765,25 +1772,6 @@ async function updateLocationFields(type, addressInfo) {
                 addressInfo.address.county ||
                 addressInfo.address.state_district;
 
-    // Update country select
-    const countrySelect = document.getElementById(`${type}_country`);
-    if (country && countrySelect) {
-        // Find the option that matches the country name (case-insensitive)
-        const countryOption = Array.from(countrySelect.options).find(
-            option => option.text.toLowerCase() === country.toLowerCase()
-        );
-        
-        if (countryOption) {
-            const previousCountry = countrySelect.value;
-            countrySelect.value = countryOption.value;
-            
-            // Only trigger change event if country actually changed
-            if (previousCountry !== countryOption.value) {
-                countrySelect.dispatchEvent(new Event('change'));
-            }
-        }
-    }
-
     // Update address field with the full address
     const addressInput = document.getElementById(`${type}_address`);
     if (addressInput) {
@@ -1798,6 +1786,9 @@ async function updateLocationFields(type, addressInfo) {
     document.getElementById(`${type}_display_name`).value = addressInfo.display_name;
     document.getElementById(`${type}_coordinates`).value = `${addressInfo.lat},${addressInfo.lon}`;
     document.getElementById(`${type}_formatted_address`).value = addressInfo.display_name;
+
+    // Update map markers and route
+    updateMap();
 }
 
 // Function to handle search result selection
@@ -1832,7 +1823,7 @@ async function selectSearchResult(result) {
 // Function to get address from coordinates
 async function getAddressFromCoordinates(lat, lng) {
     try {
-        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`);
+        const response = await fetch(`/reverse_geocode?lat=${lat}&lng=${lng}`);
         const data = await response.json();
         return data;
     } catch (error) {

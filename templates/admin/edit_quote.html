@@ -4,6 +4,8 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/airbnb.css">
 <style>
     .map-container {
         height: 300px;
@@ -123,7 +125,10 @@
 
             <!-- Pickup Location -->
             <div class="space-y-4">
-                <h3 class="text-lg font-medium text-gray-900">Pickup Location</h3>
+                <h3 class="text-lg font-medium text-gray-900 flex items-center">
+                    <i class="fas fa-map-marker-alt text-blue-600 text-xl mr-2"></i>
+                    Pickup Location
+                </h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label for="pickup_country" class="block text-sm font-medium text-gray-700">Country *</label>
@@ -146,19 +151,80 @@
                         </select>
                     </div>
                     <div class="relative">
-                        <label for="pickup_address" class="block text-sm font-medium text-gray-700">Address *</label>
-                        <input type="text" name="pickup_address" id="pickup_address" required value="{{ pickup_address }}" autocomplete="off" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" oninput="searchAddress('pickup')">
-                        <div id="pickup_suggestions" class="location-suggestions"></div>
+                        <label for="pickup_address" class="block text-sm font-medium text-gray-700">Specific Address *</label>
+                        <div class="mt-1 flex gap-2">
+                            <div class="flex-grow relative">
+                                <input type="text" 
+                                       name="pickup_address" 
+                                       id="pickup_address" 
+                                       required 
+                                       value="{{ pickup_address }}" 
+                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pr-10" 
+                                       placeholder="Start typing to search address...">
+                                <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-map-marker-alt text-gray-400"></i>
+                                </div>
+                            </div>
+                            <button type="button" 
+                                    class="inline-flex items-center px-4 py-2 border border-blue-100 text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                    onclick="openMapModal('pickup')">
+                                <i class="fas fa-map-marker-alt mr-2"></i>
+                                Pin on Map
+                            </button>
+                        </div>
                     </div>
                 </div>
+                <div class="location-suggestions" id="pickup_suggestions"></div>
                 <input type="hidden" name="pickup_lat" id="pickup_lat" value="{{ quote.pickup_lat }}">
                 <input type="hidden" name="pickup_lng" id="pickup_lng" value="{{ quote.pickup_lng }}">
-                <button type="button" class="mt-2 px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200" onclick="enablePinOnMap('pickup')">Pin on Map</button>
+                
+                <!-- Pickup Schedule -->
+                <div class="bg-gray-50 rounded-lg p-4 mt-4">
+                    <h4 class="text-md font-medium text-gray-900 mb-3 flex items-center">
+                        <i class="fas fa-calendar-alt text-blue-600 mr-2"></i>
+                        Pickup Schedule
+                    </h4>
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <!-- Pickup Date -->
+                        <div class="relative">
+                            <label for="preferred_date" class="block text-sm font-medium text-gray-700 mb-2">Pickup Date</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-calendar text-gray-400"></i>
+                                </div>
+                                <input type="date" 
+                                       id="preferred_date" 
+                                       name="preferred_date"
+                                       value="{{ quote.preferred_date.strftime('%Y-%m-%d') if quote.preferred_date else '' }}"
+                                       min="{{ now.strftime('%Y-%m-%d') }}"
+                                       class="block w-full pl-10 pr-4 py-2.5 text-base rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                        <!-- Pickup Time -->
+                        <div class="relative">
+                            <label for="pickup_time" class="block text-sm font-medium text-gray-700 mb-2">Pickup Time</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-clock text-gray-400"></i>
+                                </div>
+                                <input type="text" 
+                                       id="pickup_time" 
+                                       name="pickup_time"
+                                       placeholder="Select time"
+                                       value="{{ quote.pickup_time if quote.pickup_time else '' }}"
+                                       class="block w-full pl-10 pr-4 py-2.5 text-base rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Dropoff Location -->
+            <!-- Drop-off Location -->
             <div class="space-y-4">
-                <h3 class="text-lg font-medium text-gray-900">Delivery Location</h3>
+                <h3 class="text-lg font-medium text-gray-900 flex items-center">
+                    <i class="fas fa-flag-checkered text-green-600 text-xl mr-2"></i>
+                    Drop-off Location
+                </h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <label for="dropoff_country" class="block text-sm font-medium text-gray-700">Country *</label>
@@ -181,14 +247,106 @@
                         </select>
                     </div>
                     <div class="relative">
-                        <label for="dropoff_address" class="block text-sm font-medium text-gray-700">Address *</label>
-                        <input type="text" name="dropoff_address" id="dropoff_address" required value="{{ dropoff_address }}" autocomplete="off" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" oninput="searchAddress('dropoff')">
-                        <div id="dropoff_suggestions" class="location-suggestions"></div>
+                        <label for="dropoff_address" class="block text-sm font-medium text-gray-700">Specific Address *</label>
+                        <div class="mt-1 flex gap-2">
+                            <div class="flex-grow relative">
+                                <input type="text" 
+                                       name="dropoff_address" 
+                                       id="dropoff_address" 
+                                       required 
+                                       value="{{ dropoff_address }}" 
+                                       class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 pr-10" 
+                                       placeholder="Start typing to search address...">
+                                <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-map-marker-alt text-gray-400"></i>
+                                </div>
+                            </div>
+                            <button type="button" 
+                                    class="inline-flex items-center px-4 py-2 border border-blue-100 text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                                    onclick="openMapModal('dropoff')">
+                                <i class="fas fa-map-marker-alt mr-2"></i>
+                                Pin on Map
+                            </button>
+                        </div>
                     </div>
                 </div>
+                <div class="location-suggestions" id="dropoff_suggestions"></div>
                 <input type="hidden" name="dropoff_lat" id="dropoff_lat" value="{{ quote.dropoff_lat }}">
                 <input type="hidden" name="dropoff_lng" id="dropoff_lng" value="{{ quote.dropoff_lng }}">
-                <button type="button" class="mt-2 px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200" onclick="enablePinOnMap('dropoff')">Pin on Map</button>
+                
+                <!-- Delivery Schedule -->
+                <div class="bg-gray-50 rounded-lg p-4 mt-4">
+                    <h4 class="text-md font-medium text-gray-900 mb-3 flex items-center">
+                        <i class="fas fa-truck-loading text-green-600 mr-2"></i>
+                        Estimated Delivery Schedule
+                    </h4>
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <!-- Delivery Date -->
+                        <div class="relative">
+                            <label for="estimated_delivery_date" class="block text-sm font-medium text-gray-700 mb-2">Delivery Date</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-calendar text-gray-400"></i>
+                                </div>
+                                <input type="date" 
+                                       id="estimated_delivery_date" 
+                                       name="estimated_delivery_date"
+                                       value="{{ quote.estimated_delivery_date.strftime('%Y-%m-%d') if quote.estimated_delivery_date else '' }}"
+                                       min="{{ now.strftime('%Y-%m-%d') }}"
+                                       class="block w-full pl-10 pr-4 py-2.5 text-base rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                        <!-- Delivery Time -->
+                        <div class="relative">
+                            <label for="estimated_delivery_time" class="block text-sm font-medium text-gray-700 mb-2">Delivery Time</label>
+                            <div class="relative rounded-md shadow-sm">
+                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <i class="fas fa-clock text-gray-400"></i>
+                                </div>
+                                <input type="text" 
+                                       id="estimated_delivery_time" 
+                                       name="estimated_delivery_time"
+                                       placeholder="Select time"
+                                       value="{{ quote.estimated_delivery_time if quote.estimated_delivery_time else '' }}"
+                                       class="block w-full pl-10 pr-4 py-2.5 text-base rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Modal -->
+            <div id="mapModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+                <div class="bg-white rounded-lg shadow-lg w-full max-w-2xl relative">
+                    <div class="flex justify-between items-center px-6 py-4 border-b">
+                        <h3 class="text-lg font-semibold" id="mapModalTitle">Select Location on Map</h3>
+                        <button class="text-gray-400 hover:text-gray-700 text-2xl leading-none" onclick="closeMapModal()">&times;</button>
+                    </div>
+                    <div class="px-6 py-4">
+                        <div class="mb-4">
+                            <p class="text-gray-600 mb-2">Search for an address or click on the map to place a marker.</p>
+                            <div class="relative">
+                                <input id="modalAddressSearch" 
+                                       type="text" 
+                                       placeholder="Search for an address..." 
+                                       class="w-full px-4 py-2 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                                <div class="absolute inset-y-0 right-3 flex items-center">
+                                    <button type="button" onclick="searchModalAddress()" class="text-gray-400 hover:text-gray-600">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="searchResults" class="absolute z-10 w-full bg-white border border-gray-200 rounded-md shadow-lg mt-1 hidden">
+                                <!-- Search results will be populated here -->
+                            </div>
+                        </div>
+                        <div id="modalMap" class="h-[350px] rounded-lg border border-gray-200"></div>
+                        <div class="flex justify-end mt-4 gap-2">
+                            <button type="button" class="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2" onclick="closeMapModal()">Cancel</button>
+                            <button type="button" class="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2" onclick="confirmMapModal()">Confirm Location</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Route Map -->
@@ -205,17 +363,6 @@
                     <label for="cargo_description" class="block text-sm font-medium text-gray-700">Cargo Description *</label>
                     <textarea name="cargo_description" id="cargo_description" rows="3" required
                               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ quote.cargo_description }}</textarea>
-                </div>
-                <div>
-                    <label for="preferred_date" class="block text-sm font-medium text-gray-700">Preferred Pickup Date</label>
-                    <input type="date" name="preferred_date" id="preferred_date"
-                           value="{{ quote.preferred_date.strftime('%Y-%m-%d') if quote.preferred_date else '' }}"
-                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
-                </div>
-                <div>
-                    <label for="additional_notes" class="block text-sm font-medium text-gray-700">Additional Notes</label>
-                    <textarea name="additional_notes" id="additional_notes" rows="3"
-                              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">{{ quote.additional_notes }}</textarea>
                 </div>
             </div>
 
@@ -236,377 +383,564 @@
 
 {% block extra_js %}
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-// Initialize global variables
-let map, pickupMarker, dropoffMarker, routeLayer;
+let map, pickupMarker, dropoffMarker;
+let modalMap, modalMarker, modalType;
+let searchTimeout;
+let routeLayer;
 
-// Polyline decoding function
-function decodePolyline(str, precision) {
-    var index = 0,
-        lat = 0,
-        lng = 0,
-        coordinates = [],
-        shift = 0,
-        result = 0,
-        byte = null,
-        latitude_change,
-        longitude_change,
-        factor = Math.pow(10, precision || 5);
+// Initialize EAST_AFRICAN_CITIES data
+window.EAST_AFRICAN_CITIES = {{ EAST_AFRICAN_CITIES|tojson|safe }};
 
-    while (index < str.length) {
-        byte = null;
-        shift = 0;
-        result = 0;
-
-        do {
-            byte = str.charCodeAt(index++) - 63;
-            result |= (byte & 0x1f) << shift;
-            shift += 5;
-        } while (byte >= 0x20);
-
-        latitude_change = ((result & 1) ? ~(result >> 1) : (result >> 1));
-        shift = result = 0;
-
-        do {
-            byte = str.charCodeAt(index++) - 63;
-            result |= (byte & 0x1f) << shift;
-            shift += 5;
-        } while (byte >= 0x20);
-
-        longitude_change = ((result & 1) ? ~(result >> 1) : (result >> 1));
-        lat += latitude_change;
-        lng += longitude_change;
-        coordinates.push([lat / factor, lng / factor]);
-    }
-
-    return coordinates;
-}
-
-function initMap() {
-    // Initialize the map
-    map = L.map('map').setView([0, 35], 5);  // Centered on East Africa
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
-    // Initialize markers
-    const pickupLat = parseFloat(document.getElementById('pickup_lat').value) || 0;
-    const pickupLng = parseFloat(document.getElementById('pickup_lng').value) || 0;
-    const dropoffLat = parseFloat(document.getElementById('dropoff_lat').value) || 0;
-    const dropoffLng = parseFloat(document.getElementById('dropoff_lng').value) || 0;
-
-    if (pickupLat && pickupLng) {
-        pickupMarker = L.marker([pickupLat, pickupLng], {
-            draggable: true,
-            icon: L.divIcon({
-                className: 'custom-div-icon',
-                html: '<div style="background-color: #3B82F6; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>',
-                iconSize: [12, 12]
-            })
-        }).addTo(map);
-        pickupMarker.on('dragend', function(e) {
-            updatePickupCoords(e);
-            updateRoute();
-        });
-    }
-
-    if (dropoffLat && dropoffLng) {
-        dropoffMarker = L.marker([dropoffLat, dropoffLng], {
-            draggable: true,
-            icon: L.divIcon({
-                className: 'custom-div-icon',
-                html: '<div style="background-color: #10B981; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>',
-                iconSize: [12, 12]
-            })
-        }).addTo(map);
-        dropoffMarker.on('dragend', function(e) {
-            updateDropoffCoords(e);
-            updateRoute();
-        });
-    }
-
-    // Fit bounds if both markers exist
-    if (pickupMarker && dropoffMarker) {
-        const bounds = L.latLngBounds([
-            [pickupLat, pickupLng],
-            [dropoffLat, dropoffLng]
-        ]);
-        map.fitBounds(bounds, { padding: [50, 50] });
-        updateRoute();
-    }
-
-    // Set up location search
-    setupLocationSearch('pickup');
-    setupLocationSearch('dropoff');
-
-    // Add map click handler for pin mode
-    map.on('click', onMapClick);
-}
-
-async function updateRoute() {
-    if (!pickupMarker || !dropoffMarker) return;
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize country/city dropdowns
+    setupLocationDropdowns('pickup');
+    setupLocationDropdowns('dropoff');
     
-    const pickup = pickupMarker.getLatLng();
-    const dropoff = dropoffMarker.getLatLng();
-    
-    try {
-        // Remove existing route if any
-        if (routeLayer) {
-            map.removeLayer(routeLayer);
-        }
-        
-        // Fetch route from OSRM
-        const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${pickup.lng},${pickup.lat};${dropoff.lng},${dropoff.lat}?overview=full&geometries=polyline`);
-        const data = await response.json();
-        
-        if (data.routes && data.routes.length > 0) {
-            // Decode the polyline
-            const coordinates = decodePolyline(data.routes[0].geometry);
-            
-            // Create and add the route layer
-            routeLayer = L.polyline(coordinates, {
-                color: '#3B82F6',
-                weight: 4,
-                opacity: 0.7,
-                lineJoin: 'round'
-            }).addTo(map);
-            
-            // Update distance if available
-            if (data.routes[0].distance) {
-                const distanceKm = (data.routes[0].distance / 1000).toFixed(1);
-                const durationHours = (data.routes[0].duration / 3600).toFixed(1);
-                routeLayer.bindPopup(`Distance: ${distanceKm} km<br>Estimated time: ${durationHours} hours`);
-                document.getElementById('estimated_distance').value = distanceKm;
+    // Initialize map
+    initializeMap();
+
+    // Initialize flatpickr instances
+    const pickupTimePicker = flatpickr("#pickup_time", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true,
+        minuteIncrement: 15,
+        defaultHour: 9,
+        defaultMinute: 0,
+        onChange: function(selectedDates, timeStr) {
+            const pickupDate = document.getElementById('preferred_date').value;
+            const deliveryDate = document.getElementById('estimated_delivery_date').value;
+            if (pickupDate && deliveryDate && pickupDate === deliveryDate) {
+                deliveryTimePicker.set('minTime', timeStr);
             }
         }
-    } catch (error) {
-        console.error('Error fetching route:', error);
-    }
-}
+    });
 
-function updatePickupCoords(e) {
-    const latlng = e.target.getLatLng();
-    document.getElementById('pickup_lat').value = latlng.lat;
-    document.getElementById('pickup_lng').value = latlng.lng;
-}
+    const deliveryTimePicker = flatpickr("#estimated_delivery_time", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true,
+        minuteIncrement: 15,
+        defaultHour: 17,
+        defaultMinute: 0
+    });
 
-function updateDropoffCoords(e) {
-    const latlng = e.target.getLatLng();
-    document.getElementById('dropoff_lat').value = latlng.lat;
-    document.getElementById('dropoff_lng').value = latlng.lng;
-}
+    // Initialize date pickers
+    flatpickr("#preferred_date", {
+        dateFormat: "Y-m-d",
+        minDate: "today",
+        onChange: function(selectedDates, dateStr) {
+            const deliveryDatePicker = document.getElementById('estimated_delivery_date')._flatpickr;
+            deliveryDatePicker.set('minDate', dateStr);
+        }
+    });
 
-function setupLocationSearch(type) {
+    flatpickr("#estimated_delivery_date", {
+        dateFormat: "Y-m-d",
+        minDate: "today",
+        onChange: function(selectedDates, dateStr) {
+            const pickupDate = document.getElementById('preferred_date').value;
+            const pickupTime = document.getElementById('pickup_time').value;
+            if (dateStr === pickupDate && pickupTime) {
+                deliveryTimePicker.set('minTime', pickupTime);
+            } else {
+                deliveryTimePicker.set('minTime', "00:00");
+            }
+        }
+    });
+
+    // Add validation for delivery time when dates are the same
+    document.getElementById('estimated_delivery_date').addEventListener('change', function() {
+        const pickupDate = document.getElementById('preferred_date').value;
+        const pickupTime = document.getElementById('pickup_time').value;
+        if (this.value === pickupDate && pickupTime) {
+            const deliveryTimePicker = document.getElementById('estimated_delivery_time')._flatpickr;
+            deliveryTimePicker.set('minTime', pickupTime);
+        } else {
+            const deliveryTimePicker = document.getElementById('estimated_delivery_time')._flatpickr;
+            deliveryTimePicker.set('minTime', "00:00");
+        }
+    });
+});
+
+function setupLocationDropdowns(type) {
     const countrySelect = document.getElementById(`${type}_country`);
     const citySelect = document.getElementById(`${type}_city`);
     const addressInput = document.getElementById(`${type}_address`);
+    const suggestionsDiv = document.getElementById(`${type}_suggestions`);
     
+    // Handle country change
     countrySelect.addEventListener('change', function() {
         const country = this.value;
-        citySelect.innerHTML = '<option value="">Select City</option>';
-        
-        if (country && window.EAST_AFRICAN_CITIES[country]) {
-            Object.keys(window.EAST_AFRICAN_CITIES[country]).forEach(city => {
-                const option = document.createElement('option');
-                option.value = city;
-                option.textContent = city;
-                citySelect.appendChild(option);
-            });
-        }
+        updateCityOptions(type, country);
     });
     
+    // Handle city selection changes
     citySelect.addEventListener('change', function() {
         const country = countrySelect.value;
         const city = this.value;
         
-        if (country && city && window.EAST_AFRICAN_CITIES[country][city]) {
+        if (country && city && window.EAST_AFRICAN_CITIES[country]?.[city]) {
             const coords = window.EAST_AFRICAN_CITIES[country][city];
-            const lat = coords.lat;
-            const lng = coords.lng;
+            document.getElementById(`${type}_lat`).value = coords.lat;
+            document.getElementById(`${type}_lng`).value = coords.lng;
+            addressInput.value = `${city}, ${country}`;
             
             if (type === 'pickup') {
-                if (pickupMarker) {
-                    pickupMarker.setLatLng([lat, lng]);
-                } else {
-                    pickupMarker = L.marker([lat, lng], {
-                        draggable: true,
-                        icon: L.divIcon({
-                            className: 'custom-div-icon',
-                            html: '<div style="background-color: #3B82F6; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>',
-                            iconSize: [12, 12]
-                        })
+                if (!pickupMarker) {
+                    pickupMarker = L.marker([coords.lat, coords.lng], {
+                        icon: createCustomIcon('pickup')
                     }).addTo(map);
-                    pickupMarker.on('dragend', function(e) {
-                        updatePickupCoords(e);
-                        updateRoute();
-                    });
-                }
-                document.getElementById('pickup_lat').value = lat;
-                document.getElementById('pickup_lng').value = lng;
-            } else {
-                if (dropoffMarker) {
-                    dropoffMarker.setLatLng([lat, lng]);
                 } else {
-                    dropoffMarker = L.marker([lat, lng], {
-                        draggable: true,
-                        icon: L.divIcon({
-                            className: 'custom-div-icon',
-                            html: '<div style="background-color: #10B981; width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>',
-                            iconSize: [12, 12]
-                        })
-                    }).addTo(map);
-                    dropoffMarker.on('dragend', function(e) {
-                        updateDropoffCoords(e);
-                        updateRoute();
-                    });
+                    pickupMarker.setLatLng([coords.lat, coords.lng]);
                 }
-                document.getElementById('dropoff_lat').value = lat;
-                document.getElementById('dropoff_lng').value = lng;
-            }
-            
-            if (pickupMarker && dropoffMarker) {
-                updateRoute();
-                const bounds = L.latLngBounds([
-                    pickupMarker.getLatLng(),
-                    dropoffMarker.getLatLng()
-                ]);
-                map.fitBounds(bounds, { padding: [50, 50] });
             } else {
-                map.setView([lat, lng], 13);
+                if (!dropoffMarker) {
+                    dropoffMarker = L.marker([coords.lat, coords.lng], {
+                        icon: createCustomIcon('dropoff')
+                    }).addTo(map);
+                } else {
+                    dropoffMarker.setLatLng([coords.lat, coords.lng]);
+                }
             }
+            updateMap();
+        }
+    });
+    
+    // Handle address input
+    addressInput.addEventListener('input', function() {
+        if (searchTimeout) clearTimeout(searchTimeout);
+        const query = this.value.trim();
+        
+        if (query.length < 3) {
+            suggestionsDiv.classList.remove('active');
+            return;
+        }
+        
+        searchTimeout = setTimeout(() => {
+            const country = countrySelect.value;
+            searchAddressWithSuggestions(query, country, type);
+        }, 500);
+    });
+
+    // Close suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!addressInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+            suggestionsDiv.classList.remove('active');
         }
     });
 }
 
-// --- Address Search and Suggestions ---
-async function searchAddress(type) {
-    const input = document.getElementById(`${type}_address`);
-    const suggestions = document.getElementById(`${type}_suggestions`);
-    const country = document.getElementById(`${type}_country`).value;
-    const query = input.value;
-    if (!query || query.length < 3) {
-        suggestions.innerHTML = '';
-        suggestions.classList.remove('active');
-        return;
-    }
-    suggestions.innerHTML = '<div class="suggestion-item">Searching...</div>';
-    suggestions.classList.add('active');
-    try {
-        const url = `/search_address?query=${encodeURIComponent(query)}&country=${encodeURIComponent(country)}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data.length === 0) {
-            suggestions.innerHTML = '<div class="suggestion-item">No results found</div>';
-        } else {
-            suggestions.innerHTML = data.map(addr =>
-                `<div class="suggestion-item" onclick='selectAddress(${JSON.stringify(addr)}, "${type}")'>${addr.display_name}</div>`
-            ).join('');
-        }
-    } catch (e) {
-        suggestions.innerHTML = '<div class="suggestion-item">Error searching address</div>';
+function updateCityOptions(type, country) {
+    const citySelect = document.getElementById(`${type}_city`);
+    citySelect.innerHTML = '<option value="">Select City</option>';
+    citySelect.disabled = !country;
+    
+    if (country && window.EAST_AFRICAN_CITIES[country]) {
+        Object.keys(window.EAST_AFRICAN_CITIES[country]).forEach(city => {
+            const option = document.createElement('option');
+            option.value = city;
+            option.textContent = city;
+            citySelect.appendChild(option);
+        });
     }
 }
 
-function selectAddress(addr, type) {
-    document.getElementById(`${type}_address`).value = addr.display_name;
-    document.getElementById(`${type}_lat`).value = addr.lat;
-    document.getElementById(`${type}_lng`).value = addr.lon;
-    document.getElementById(`${type}_suggestions`).innerHTML = '';
-    document.getElementById(`${type}_suggestions`).classList.remove('active');
-    // Move marker on map
-    const latLng = [parseFloat(addr.lat), parseFloat(addr.lon)];
-    if (type === 'pickup') {
-        if (pickupMarker) {
-            pickupMarker.setLatLng(latLng);
-        } else {
-            pickupMarker = L.marker(latLng, { draggable: true }).addTo(map);
-            pickupMarker.on('dragend', function(e) {
-                updatePickupCoords(e);
-                updateRoute();
-            });
-        }
-        map.setView(latLng, 13);
-    } else {
-        if (dropoffMarker) {
-            dropoffMarker.setLatLng(latLng);
-        } else {
-            dropoffMarker = L.marker(latLng, { draggable: true }).addTo(map);
-            dropoffMarker.on('dragend', function(e) {
-                updateDropoffCoords(e);
-                updateRoute();
-            });
-        }
-        map.setView(latLng, 13);
+function initializeMap() {
+    map = L.map('map').setView([0, 35], 6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    
+    // Initialize markers if coordinates exist
+    const pickupLat = document.getElementById('pickup_lat').value;
+    const pickupLng = document.getElementById('pickup_lng').value;
+    const dropoffLat = document.getElementById('dropoff_lat').value;
+    const dropoffLng = document.getElementById('dropoff_lng').value;
+    
+    if (pickupLat && pickupLng) {
+        pickupMarker = L.marker([pickupLat, pickupLng], {
+            icon: createCustomIcon('pickup')
+        }).addTo(map);
     }
+    
+    if (dropoffLat && dropoffLng) {
+        dropoffMarker = L.marker([dropoffLat, dropoffLng], {
+            icon: createCustomIcon('dropoff')
+        }).addTo(map);
+    }
+    
     if (pickupMarker && dropoffMarker) {
-        updateRoute();
-        const bounds = L.latLngBounds([
-            pickupMarker.getLatLng(),
-            dropoffMarker.getLatLng()
-        ]);
+        const bounds = L.latLngBounds([pickupMarker.getLatLng(), dropoffMarker.getLatLng()]);
         map.fitBounds(bounds, { padding: [50, 50] });
     }
 }
 
-document.addEventListener('click', function(e) {
-    if (!e.target.classList.contains('suggestion-item')) {
-        document.getElementById('pickup_suggestions').classList.remove('active');
-        document.getElementById('dropoff_suggestions').classList.remove('active');
+function createCustomIcon(type) {
+    return L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div class="marker-pin ${type}">
+            <div class="marker-pulse ${type}"></div>
+            <div style="background-color: ${type === 'pickup' ? '#3B82F6' : '#10B981'}; 
+                 width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>
+        </div>`,
+        iconSize: [12, 12]
+    });
+}
+
+function openMapModal(type) {
+    modalType = type;
+    const modal = document.getElementById('mapModal');
+    const title = document.getElementById('mapModalTitle');
+    title.textContent = `Select ${type === 'pickup' ? 'Pickup' : 'Drop-off'} Location`;
+    modal.classList.remove('hidden');
+    
+    setTimeout(() => {
+        if (!modalMap) {
+            modalMap = L.map('modalMap').setView([0, 35], 6);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(modalMap);
+            
+            modalMap.on('click', function(e) {
+                setModalMarker(e.latlng.lat, e.latlng.lng);
+                reverseGeocode(e.latlng.lat, e.latlng.lng);
+            });
+        }
+        
+        modalMap.invalidateSize();
+        
+        const lat = document.getElementById(`${type}_lat`).value;
+        const lng = document.getElementById(`${type}_lng`).value;
+        if (lat && lng) {
+            setModalMarker(parseFloat(lat), parseFloat(lng));
+            modalMap.setView([parseFloat(lat), parseFloat(lng)], 13);
+            reverseGeocode(parseFloat(lat), parseFloat(lng));
+        }
+    }, 100);
+    
+    const searchInput = document.getElementById('modalAddressSearch');
+    searchInput.value = document.getElementById(`${type}_address`).value;
+    setupModalSearch(searchInput);
+}
+
+function setupModalSearch(searchInput) {
+    searchInput.addEventListener('input', function() {
+        if (searchTimeout) clearTimeout(searchTimeout);
+        const query = this.value.trim();
+        
+        if (query.length < 3) return;
+        
+        searchTimeout = setTimeout(() => {
+            const country = document.getElementById(`${modalType}_country`).value;
+            searchLocation(query, country);
+        }, 500);
+    });
+
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const query = this.value.trim();
+            if (query.length < 3) return;
+            
+            const country = document.getElementById(`${modalType}_country`).value;
+            searchLocation(query, country);
+        }
+    });
+}
+
+async function searchLocation(query, country) {
+    try {
+        const searchInput = document.getElementById('modalAddressSearch');
+        searchInput.classList.add('loading');
+        
+        const params = new URLSearchParams({
+            query: query,
+            country: country || ''
+        });
+        
+        const response = await fetch(`/search_address?${params}`);
+        const results = await response.json();
+        
+        if (results.length > 0) {
+            const location = results[0];
+            setModalMarker(parseFloat(location.lat), parseFloat(location.lon));
+            modalMap.setView([parseFloat(location.lat), parseFloat(location.lon)], 15);
+            searchInput.value = location.display_name || location.formatted_address;
+            
+            document.getElementById(`${modalType}_lat`).value = location.lat;
+            document.getElementById(`${modalType}_lng`).value = location.lon;
+        }
+    } catch (error) {
+        console.error('Error searching location:', error);
+    } finally {
+        document.getElementById('modalAddressSearch').classList.remove('loading');
+    }
+}
+
+function setModalMarker(lat, lng) {
+    if (modalMarker) {
+        modalMarker.setLatLng([lat, lng]);
+    } else {
+        modalMarker = L.marker([lat, lng], {
+            draggable: true,
+            icon: createCustomIcon(modalType)
+        }).addTo(modalMap);
+        
+        modalMarker.on('dragend', function(e) {
+            const pos = e.target.getLatLng();
+            reverseGeocode(pos.lat, pos.lng);
+        });
+    }
+}
+
+async function reverseGeocode(lat, lng) {
+    try {
+        const searchInput = document.getElementById('modalAddressSearch');
+        const mainInput = document.getElementById(`${modalType}_address`);
+        searchInput.classList.add('loading');
+        
+        const response = await fetch(`/reverse_geocode?lat=${lat}&lng=${lng}`);
+        const data = await response.json();
+        
+        const address = data.display_name || data.formatted_address;
+        
+        // Update both the modal search input and the main form input
+        searchInput.value = address;
+        mainInput.value = address;
+        
+        // Store coordinates
+        document.getElementById(`${modalType}_lat`).value = lat;
+        document.getElementById(`${modalType}_lng`).value = lng;
+        
+        // Update the map marker
+        if (modalType === 'pickup' && pickupMarker) {
+            pickupMarker.setLatLng([lat, lng]);
+        } else if (modalType === 'dropoff' && dropoffMarker) {
+            dropoffMarker.setLatLng([lat, lng]);
+        }
+        
+        updateMap();
+    } catch (error) {
+        console.error('Error reverse geocoding:', error);
+        searchInput.value = 'Address not found. Please try again or enter manually.';
+    } finally {
+        searchInput.classList.remove('loading');
+    }
+}
+
+function closeMapModal() {
+    document.getElementById('mapModal').classList.add('hidden');
+    if (modalMarker) {
+        modalMap.removeLayer(modalMarker);
+        modalMarker = null;
+    }
+}
+
+function confirmMapModal() {
+    if (!modalMarker) return;
+    
+    const pos = modalMarker.getLatLng();
+    const address = document.getElementById('modalAddressSearch').value;
+    
+    // Update the main form fields
+    document.getElementById(`${modalType}_address`).value = address;
+    document.getElementById(`${modalType}_lat`).value = pos.lat;
+    document.getElementById(`${modalType}_lng`).value = pos.lng;
+    
+    // Update the map marker
+    if (modalType === 'pickup') {
+        if (!pickupMarker) {
+            pickupMarker = L.marker([pos.lat, pos.lng], {
+                icon: createCustomIcon('pickup')
+            }).addTo(map);
+        } else {
+            pickupMarker.setLatLng([pos.lat, pos.lng]);
+        }
+    } else {
+        if (!dropoffMarker) {
+            dropoffMarker = L.marker([pos.lat, pos.lng], {
+                icon: createCustomIcon('dropoff')
+            }).addTo(map);
+        } else {
+            dropoffMarker.setLatLng([pos.lat, pos.lng]);
+        }
+    }
+    
+    closeMapModal();
+    updateMap();
+}
+
+function updateMap() {
+    // Update markers and route on the main map
+    const pickupLat = document.getElementById('pickup_lat').value;
+    const pickupLng = document.getElementById('pickup_lng').value;
+    const dropoffLat = document.getElementById('dropoff_lat').value;
+    const dropoffLng = document.getElementById('dropoff_lng').value;
+
+    if (pickupLat && pickupLng) {
+        if (!pickupMarker) {
+            pickupMarker = L.marker([pickupLat, pickupLng], {
+                icon: createCustomIcon('pickup')
+            }).addTo(map);
+        } else {
+            pickupMarker.setLatLng([pickupLat, pickupLng]);
+        }
+    }
+
+    if (dropoffLat && dropoffLng) {
+        if (!dropoffMarker) {
+            dropoffMarker = L.marker([dropoffLat, dropoffLng], {
+                icon: createCustomIcon('dropoff')
+            }).addTo(map);
+        } else {
+            dropoffMarker.setLatLng([dropoffLat, dropoffLng]);
+        }
+    }
+
+    // If both markers exist, fit bounds
+    if (pickupMarker && dropoffMarker) {
+        const bounds = L.latLngBounds([pickupMarker.getLatLng(), dropoffMarker.getLatLng()]);
+        map.fitBounds(bounds, { padding: [50, 50] });
+    }
+}
+
+async function searchModalAddress() {
+    const searchInput = document.getElementById('modalAddressSearch');
+    const query = searchInput.value.trim();
+    const searchResults = document.getElementById('searchResults');
+    
+    if (query.length < 3) return;
+    
+    try {
+        searchInput.classList.add('loading');
+        const country = document.getElementById(`${modalType}_country`).value;
+        
+        const params = new URLSearchParams({
+            query: query,
+            country: country || ''
+        });
+        
+        const response = await fetch(`/search_address?${params}`);
+        const results = await response.json();
+        
+        searchResults.innerHTML = '';
+        
+        if (results.length > 0) {
+            searchResults.classList.remove('hidden');
+            results.forEach(result => {
+                const div = document.createElement('div');
+                div.className = 'p-2 hover:bg-gray-100 cursor-pointer';
+                div.textContent = result.display_name || result.formatted_address;
+                div.onclick = () => {
+                    searchInput.value = result.display_name || result.formatted_address;
+                    setModalMarker(parseFloat(result.lat), parseFloat(result.lon));
+                    modalMap.setView([parseFloat(result.lat), parseFloat(result.lon)], 15);
+                    searchResults.classList.add('hidden');
+                    
+                    // Store coordinates
+                    document.getElementById(`${modalType}_lat`).value = result.lat;
+                    document.getElementById(`${modalType}_lng`).value = result.lon;
+                };
+                searchResults.appendChild(div);
+            });
+        }
+    } catch (error) {
+        console.error('Error searching address:', error);
+    } finally {
+        searchInput.classList.remove('loading');
+    }
+}
+
+// Add event listener for Enter key in search input
+document.getElementById('modalAddressSearch').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        searchModalAddress();
     }
 });
 
-// --- Pin on Map Functionality ---
-let pinMode = null;
-function enablePinOnMap(type) {
-    pinMode = type;
-    map.getContainer().style.cursor = 'crosshair';
-    alert('Click on the map to set the ' + (type === 'pickup' ? 'pickup' : 'dropoff') + ' location.');
-}
+// Close search results when clicking outside
+document.addEventListener('click', function(e) {
+    const searchResults = document.getElementById('searchResults');
+    const searchInput = document.getElementById('modalAddressSearch');
+    
+    if (!searchResults.contains(e.target) && !searchInput.contains(e.target)) {
+        searchResults.classList.add('hidden');
+    }
+});
 
-function onMapClick(e) {
-    if (!pinMode) return;
-    const lat = e.latlng.lat;
-    const lng = e.latlng.lng;
-    if (pinMode === 'pickup') {
-        document.getElementById('pickup_lat').value = lat;
-        document.getElementById('pickup_lng').value = lng;
-        document.getElementById('pickup_address').value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-        if (pickupMarker) {
-            pickupMarker.setLatLng([lat, lng]);
-        } else {
-            pickupMarker = L.marker([lat, lng], { draggable: true }).addTo(map);
-            pickupMarker.on('dragend', function(e) {
-                updatePickupCoords(e);
-                updateRoute();
-            });
-        }
+function setModalMarker(lat, lng) {
+    if (modalMarker) {
+        modalMarker.setLatLng([lat, lng]);
     } else {
-        document.getElementById('dropoff_lat').value = lat;
-        document.getElementById('dropoff_lng').value = lng;
-        document.getElementById('dropoff_address').value = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
-        if (dropoffMarker) {
-            dropoffMarker.setLatLng([lat, lng]);
-        } else {
-            dropoffMarker = L.marker([lat, lng], { draggable: true }).addTo(map);
-            dropoffMarker.on('dragend', function(e) {
-                updateDropoffCoords(e);
-                updateRoute();
-            });
-        }
+        modalMarker = L.marker([lat, lng], {
+            draggable: true,
+            icon: L.divIcon({
+                className: 'custom-div-icon',
+                html: `<div class="marker-pin ${modalType}">
+                    <div class="marker-pulse ${modalType}"></div>
+                    <div style="background-color: ${modalType === 'pickup' ? '#3B82F6' : '#10B981'}; 
+                         width: 12px; height: 12px; border-radius: 50%; border: 2px solid white;"></div>
+                </div>`,
+                iconSize: [12, 12]
+            })
+        }).addTo(modalMap);
+        
+        modalMarker.on('dragend', function(e) {
+            const pos = e.target.getLatLng();
+            reverseGeocode(pos.lat, pos.lng);
+        });
     }
-    pinMode = null;
-    map.getContainer().style.cursor = '';
-    if (pickupMarker && dropoffMarker) {
-        updateRoute();
-        const bounds = L.latLngBounds([
-            pickupMarker.getLatLng(),
-            dropoffMarker.getLatLng()
-        ]);
-        map.fitBounds(bounds, { padding: [50, 50] });
-    }
+    
+    // Update the form fields immediately
+    document.getElementById(`${modalType}_lat`).value = lat;
+    document.getElementById(`${modalType}_lng`).value = lng;
 }
 
-// Initialize map when the page loads
-document.addEventListener('DOMContentLoaded', initMap);
+async function searchAddressWithSuggestions(query, country, type) {
+    try {
+        const addressInput = document.getElementById(`${type}_address`);
+        const suggestionsDiv = document.getElementById(`${type}_suggestions`);
+        addressInput.classList.add('loading');
+        
+        const params = new URLSearchParams({
+            query: query,
+            country: country || ''
+        });
+        
+        const response = await fetch(`/search_address?${params}`);
+        const results = await response.json();
+        
+        suggestionsDiv.innerHTML = '';
+        
+        if (results.length > 0) {
+            results.forEach(result => {
+                const div = document.createElement('div');
+                div.className = 'location-suggestion';
+                div.textContent = result.display_name || result.formatted_address;
+                div.onclick = () => {
+                    addressInput.value = result.display_name || result.formatted_address;
+                    document.getElementById(`${type}_lat`).value = result.lat;
+                    document.getElementById(`${type}_lng`).value = result.lon;
+                    suggestionsDiv.classList.remove('active');
+                    updateMap();
+                };
+                suggestionsDiv.appendChild(div);
+            });
+            suggestionsDiv.classList.add('active');
+        } else {
+            suggestionsDiv.classList.remove('active');
+        }
+    } catch (error) {
+        console.error('Error searching address:', error);
+    } finally {
+        document.getElementById(`${type}_address`).classList.remove('loading');
+    }
+}
 </script>
 {% endblock %} 

@@ -194,4 +194,115 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Support
 
-For support, email support@segecha.com or WhatsApp +254 XXX XXX XXX. 
+For support, email support@segecha.com or WhatsApp +254 XXX XXX XXX.
+
+## Configuration Requirements
+
+### Email Configuration (SMTP)
+- SMTP Server (e.g., smtp.gmail.com)
+- SMTP Port (typically 587 for TLS)
+- SMTP Username (your email address)
+- SMTP Password (app-specific password)
+- SSL/TLS settings
+- Default sender email
+
+### Company Information
+- Company Name
+- Official Phone Numbers
+- Official Email Addresses
+- Physical Address
+- Registration Number
+
+### SMS Gateway
+- API Key for SMS service provider
+- Sender ID
+- SMS templates for notifications
+
+### Payment Integration
+- M-Pesa Integration Details:
+  - Consumer Key
+  - Consumer Secret
+  - Passkey
+  - Shortcode
+  - Callback URL
+
+### Location Services
+- Google Maps API Key
+- OpenCage API Key (for geocoding)
+- OSRM API URL (for route calculation)
+
+### Admin Access
+- Admin email addresses
+- Admin phone numbers
+- Admin access credentials
+
+### Security
+- Secret key for session management
+- JWT secret key
+- Password salt
+- SSL certificate for HTTPS
+
+### Database
+- PostgreSQL connection details:
+  - Host
+  - Port
+  - Database name
+  - Username
+  - Password
+
+### File Storage
+- Upload directory configuration
+- Maximum file size limits
+- Allowed file types
+
+### External Services
+- API keys for third-party services
+- Integration credentials
+
+### Notification Settings
+- Email notification templates
+- SMS notification templates
+- Push notification configuration
+
+### Tracking Configuration
+- Update intervals
+- Geofence settings
+- Location tracking parameters
+
+### Business Rules
+- Operating hours
+- Minimum pickup notice
+- Maximum delivery distance
+- Service area boundaries
+
+### Caching
+- Redis connection details
+- Cache timeout settings
+- Cache storage configuration
+
+### Logging
+- Log file locations
+- Log levels
+- Error reporting configuration
+
+## Setup Instructions
+
+1. Copy `.env.example` to `.env`
+2. Fill in all required configuration values in `.env`
+3. Ensure all API keys and credentials are properly secured
+4. Test all integrations before deployment
+
+## Security Notes
+
+- Never commit sensitive credentials to version control
+- Use environment variables for all sensitive configuration
+- Regularly rotate API keys and passwords
+- Implement proper access controls
+- Monitor system logs for security events
+
+## Contact Information
+
+For technical support or configuration assistance:
+- Email: support@segecha.com
+- Phone: [Your Support Phone Number]
+- Hours: [Your Support Hours] 

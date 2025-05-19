@@ -19,6 +19,7 @@ app.cli.add_command(init_db_command)
 
 OSRM_URL = "https://router.project-osrm.org/route/v1/driving/{},{};{},{}"
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
+NOMINATIM_REVERSE_URL = "https://nominatim.openstreetmap.org/reverse"
 
 @app.route('/')
 def index():
@@ -148,6 +149,59 @@ def search_address():
         print(f"Address search error: {e}")
         return jsonify([])
 
+@app.route('/reverse_geocode')
+def reverse_geocode():
+    lat = request.args.get('lat')
+    lng = request.args.get('lng')
+    if not lat or not lng:
+        return jsonify({'error': 'Missing coordinates'}), 400
+    try:
+        headers = {'User-Agent': 'Segecha Logistics Website'}
+        params = {
+            'lat': lat,
+            'lon': lng,
+            'format': 'json',
+            'addressdetails': 1
+        }
+        response = requests.get(NOMINATIM_REVERSE_URL, params=params, headers=headers)
+        data = response.json()
+        return jsonify({
+            'display_name': data.get('display_name'),
+            'address': data.get('address', {}),
+            'lat': float(data.get('lat', lat)),
+            'lon': float(data.get('lon', lng))
+        })
+    except Exception as e:
+        print(f"Reverse geocoding error: {e}")
+        return jsonify({'error': 'Reverse geocoding failed'}), 500
+
+@app.route('/get_route')
+def get_route():
+    start_lng = request.args.get('start_lng')
+    start_lat = request.args.get('start_lat')
+    end_lng = request.args.get('end_lng')
+    end_lat = request.args.get('end_lat')
+    
+    if not all([start_lng, start_lat, end_lng, end_lat]):
+        return jsonify({'error': 'Missing coordinates'}), 400
+    
+    try:
+        url = OSRM_URL.format(start_lng, start_lat, end_lng, end_lat)
+        response = requests.get(url)
+        data = response.json()
+        
+        if data['code'] == 'Ok' and data['routes']:
+            route = data['routes'][0]
+            return jsonify({
+                'success': True,
+                'distance': round(route['distance'] / 1000, 1),  # Convert to km
+                'duration': round(route['duration'] / 3600, 1),  # Convert to hours
+                'geometry': route['geometry']
+            })
+    except Exception as e:
+        print(f"Route error: {e}")
+    return jsonify({'error': 'Unable to get route'}), 500
+
 def send_confirmation_email(quote_request):
     try:
         msg = Message('Quote Request Confirmation - Segecha Logistics',
@@ -192,13 +246,21 @@ def new_shipment():
         quote_request = QuoteRequest.query.get(quote_request_id)
     if request.method == 'POST':
         try:
-            # Parse dates
+            # Parse pickup date and time
             pickup_date = None
             if request.form.get('pickup_date'):
                 pickup_date = datetime.strptime(request.form.get('pickup_date'), '%Y-%m-%d')
+            
+            pickup_time = request.form.get('pickup_time')
+            
+            # Parse estimated delivery date and time
             estimated_delivery = None
-            if request.form.get('estimated_delivery'):
-                estimated_delivery = datetime.strptime(request.form.get('estimated_delivery'), '%Y-%m-%dT%H:%M')
+            if request.form.get('estimated_delivery_date') and request.form.get('estimated_delivery_time'):
+                estimated_delivery = datetime.strptime(
+                    f"{request.form.get('estimated_delivery_date')} {request.form.get('estimated_delivery_time')}", 
+                    '%Y-%m-%d %H:%M'
+                )
+
             # Create new shipment
             shipment = Shipment(
                 customer_name=request.form['customer_name'],
@@ -210,7 +272,7 @@ def new_shipment():
                 dropoff_lng=float(request.form.get('dropoff_lng', 0)),
                 cargo_description=request.form['cargo_description'],
                 pickup_date=pickup_date,
-                pickup_time=request.form.get('pickup_time'),
+                pickup_time=pickup_time,
                 vehicle_plate=request.form.get('vehicle_plate'),
                 pickup_status=request.form.get('pickup_status', 'Pending'),
                 pickup_notes=request.form.get('pickup_notes'),
@@ -227,7 +289,14 @@ def new_shipment():
             db.session.rollback()
             flash(f'Error creating shipment: {str(e)}', 'error')
             return redirect(url_for('new_shipment'))
-    return render_template('admin/shipment_form.html', shipment=None, quote_request=quote_request, now=datetime.now())
+    return render_template(
+        'admin/shipment_form.html',
+        shipment=None,
+        quote_request=quote_request,
+        now=datetime.now(),
+        countries=list(EAST_AFRICAN_CITIES.keys()),
+        EAST_AFRICAN_CITIES=EAST_AFRICAN_CITIES
+    )
 
 @app.route('/admin/edit-shipment/<int:id>', methods=['GET', 'POST'])
 def edit_shipment(id):
@@ -235,14 +304,20 @@ def edit_shipment(id):
     
     if request.method == 'POST':
         try:
-            # Parse dates
+            # Parse pickup date and time
             pickup_date = None
             if request.form.get('pickup_date'):
                 pickup_date = datetime.strptime(request.form.get('pickup_date'), '%Y-%m-%d')
             
+            pickup_time = request.form.get('pickup_time')
+            
+            # Parse estimated delivery date and time
             estimated_delivery = None
-            if request.form.get('estimated_delivery'):
-                estimated_delivery = datetime.strptime(request.form.get('estimated_delivery'), '%Y-%m-%dT%H:%M')
+            if request.form.get('estimated_delivery_date') and request.form.get('estimated_delivery_time'):
+                estimated_delivery = datetime.strptime(
+                    f"{request.form.get('estimated_delivery_date')} {request.form.get('estimated_delivery_time')}", 
+                    '%Y-%m-%d %H:%M'
+                )
 
             # Update shipment
             shipment.customer_name = request.form['customer_name']
@@ -254,7 +329,7 @@ def edit_shipment(id):
             shipment.dropoff_lng = float(request.form.get('dropoff_lng', 0))
             shipment.cargo_description = request.form['cargo_description']
             shipment.pickup_date = pickup_date
-            shipment.pickup_time = request.form.get('pickup_time')
+            shipment.pickup_time = pickup_time
             shipment.vehicle_plate = request.form.get('vehicle_plate')
             shipment.pickup_status = request.form.get('pickup_status', 'Pending')
             shipment.pickup_notes = request.form.get('pickup_notes')
