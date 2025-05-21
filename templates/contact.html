@@ -9,116 +9,127 @@
     </div>
 </section>
 
-<!-- Contact Information -->
-<section class="py-16">
+<!-- Modern Contact Section with Two-Column Layout -->
+<section class="relative bg-gradient-to-br from-blue-50 to-white py-20">
     <div class="container mx-auto px-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-            <!-- Contact Details -->
-            <div class="opacity-0 translate-x-[-50px] transition-all duration-700 contact-content">
-                <h2 class="text-3xl font-bold mb-8">Get In Touch</h2>
-                
-                <!-- Contact Cards -->
-                <div class="space-y-6">
-                    <!-- Phone -->
-                    <div class="bg-white p-6 rounded-lg shadow-lg opacity-0 translate-y-8 transition-all duration-700 delay-100 contact-card">
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0">
-                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-phone text-2xl text-blue-600"></i>
-                                </div>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-xl font-semibold mb-2">Phone</h3>
-                                <p class="text-gray-600">+254 XXX XXX XXX</p>
-                                <p class="text-gray-600">+254 XXX XXX XXX</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Email -->
-                    <div class="bg-white p-6 rounded-lg shadow-lg opacity-0 translate-y-8 transition-all duration-700 delay-200 contact-card">
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0">
-                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-envelope text-2xl text-blue-600"></i>
-                                </div>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-xl font-semibold mb-2">Email</h3>
-                                <p class="text-gray-600">info@segecha.com</p>
-                                <p class="text-gray-600">support@segecha.com</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Business Hours -->
-                    <div class="bg-white p-6 rounded-lg shadow-lg opacity-0 translate-y-8 transition-all duration-700 delay-300 contact-card">
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0">
-                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-clock text-2xl text-blue-600"></i>
-                                </div>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-xl font-semibold mb-2">Business Hours</h3>
-                                <p class="text-gray-600">Monday - Saturday: 8:00 AM - 6:00 PM</p>
-                                <p class="text-gray-600">Sunday: Closed</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Location -->
-                    <div class="bg-white p-6 rounded-lg shadow-lg opacity-0 translate-y-8 transition-all duration-700 delay-400 contact-card">
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0">
-                                <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                                    <i class="fas fa-map-marker-alt text-2xl text-blue-600"></i>
-                                </div>
-                            </div>
-                            <div class="ml-4">
-                                <h3 class="text-xl font-semibold mb-2">Location</h3>
-                                <p class="text-gray-600">Nairobi, Kenya</p>
-                                <p class="text-gray-600">[Your Address Here]</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Social Media Links -->
-                <div class="mt-8 opacity-0 translate-y-8 transition-all duration-700 delay-500 social-links">
-                    <h3 class="text-xl font-semibold mb-4">Connect With Us</h3>
-                    <div class="flex space-x-4">
-                        <a href="#" class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors">
-                            <i class="fab fa-facebook-f"></i>
-                        </a>
-                        <a href="#" class="w-10 h-10 bg-blue-400 text-white rounded-full flex items-center justify-center hover:bg-blue-500 transition-colors">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="w-10 h-10 bg-pink-600 text-white rounded-full flex items-center justify-center hover:bg-pink-700 transition-colors">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a href="#" class="w-10 h-10 bg-blue-800 text-white rounded-full flex items-center justify-center hover:bg-blue-900 transition-colors">
-                            <i class="fab fa-linkedin-in"></i>
-                        </a>
-                    </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <!-- Left Column: Logo -->
+            <div class="flex flex-col items-center justify-center space-y-8 p-8">
+                <img src="{{ url_for('static', filename='images/logo-main.png') }}"
+                     alt="Segecha Group Logo"
+                     class="w-full max-w-md transform hover:scale-105 transition-transform duration-300" />
+                <div class="text-center space-y-4">
+                    <h2 class="text-2xl font-bold text-brand-primary">Segecha Group Ltd.</h2>
+                    <p class="text-gray-600">Your trusted logistics partner in East Africa</p>
                 </div>
             </div>
 
-            <!-- Map -->
-            <div class="opacity-0 translate-x-[50px] transition-all duration-700 map-container">
-                <div class="bg-white p-4 rounded-lg shadow-lg">
-                    <div class="aspect-w-16 aspect-h-12">
-                        <!-- Replace with your Google Maps embed code -->
-                        <iframe 
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d255281.19891573457!2d36.7069996!3d-1.3028617!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x182f1172d84d49a7%3A0xf7cf0254b297924c!2sNairobi%2C%20Kenya!5e0!3m2!1sen!2s!4v1624451234567!5m2!1sen!2s"
-                            width="100%" 
-                            height="450" 
-                            style="border:0;" 
-                            allowfullscreen="" 
-                            loading="lazy"
-                            class="rounded-lg">
-                        </iframe>
+            <!-- Right Column: Contact Information -->
+            <div class="space-y-8">
+                <h2 class="text-3xl font-bold text-brand-primary mb-8">Get In Touch</h2>
+                
+                <!-- Contact Cards Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Phone Card -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-600 hover:shadow-xl transition-shadow">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-phone text-blue-600 text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg mb-1">Phone</h3>
+                                <a href="tel:{{ config.CONTACT_PHONE_1|replace(' ', '') }}" class="block text-gray-700 hover:text-blue-600">{{ config.CONTACT_PHONE_1 }}</a>
+                                <a href="tel:{{ config.CONTACT_PHONE_2|replace(' ', '') }}" class="block text-gray-700 hover:text-blue-600">{{ config.CONTACT_PHONE_2 }}</a>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Email Card -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-600 hover:shadow-xl transition-shadow">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-envelope text-blue-600 text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg mb-1">Email</h3>
+                                <a href="mailto:{{ config.CONTACT_EMAIL }}" class="block text-gray-700 hover:text-blue-600">{{ config.CONTACT_EMAIL }}</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Location Card -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-600 hover:shadow-xl transition-shadow">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-map-marker-alt text-blue-600 text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg mb-1">Location</h3>
+                                <a href="https://www.google.com/maps/search/?api=1&query=Mombasa+Port%2C+Shed+12%2C+Port+Reitz+Road%2C+Mombasa%2C+Kenya" 
+                                   target="_blank" 
+                                   class="block text-gray-700 hover:text-blue-600">
+                                    {{ config.CONTACT_ADDRESS }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Business Hours Card -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-600 hover:shadow-xl transition-shadow">
+                        <div class="flex items-center space-x-4">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-clock text-blue-600 text-2xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg mb-2">Business Hours</h3>
+                                <ul class="space-y-1">
+                                  <li>
+                                    <span class="font-semibold">Mon - Fri:</span>
+                                    <span class="ml-2 text-gray-700">8:00 AM – 6:00 PM</span>
+                                    <span class="inline-block w-2 h-2 bg-green-500 rounded-full ml-2"></span>
+                                  </li>
+                                  <li>
+                                    <span class="font-semibold">Saturday:</span>
+                                    <span class="ml-2 text-gray-700">9:00 AM – 2:00 PM</span>
+                                    <span class="inline-block w-2 h-2 bg-green-500 rounded-full ml-2"></span>
+                                  </li>
+                                  <li>
+                                    <span class="font-semibold">Sunday:</span>
+                                    <span class="ml-2 text-gray-700">Closed</span>
+                                    <span class="inline-block w-2 h-2 bg-red-500 rounded-full ml-2"></span>
+                                  </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Map -->
+                <div class="mt-8 bg-white rounded-xl shadow-lg overflow-hidden border-4 border-blue-100">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3988.669964073839!2d39.64104431531644!3d-4.034690697011998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1840136e2e2e2e2f%3A0x2e2e2e2e2e2e2e2e!2sMombasa%20Port%2C%20Shed%2012%2C%20Port%20Reitz%20Rd%2C%20Mombasa%2C%20Kenya!5e0!3m2!1sen!2ske!4v1680000000000!5m2!1sen!2ske"
+                        width="100%" 
+                        height="300" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy">
+                    </iframe>
+                </div>
+
+                <!-- Social Media Links -->
+                <div class="flex justify-center space-x-6 mt-8">
+                    <a href="{{ config.SOCIAL_MEDIA.facebook }}" class="w-12 h-12 bg-blue-600 text-white rounded-full flex items-center justify-center hover:bg-blue-700 transition-colors text-2xl">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="{{ config.SOCIAL_MEDIA.twitter }}" class="w-12 h-12 bg-blue-400 text-white rounded-full flex items-center justify-center hover:bg-blue-500 transition-colors text-2xl">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="{{ config.SOCIAL_MEDIA.instagram }}" class="w-12 h-12 bg-pink-600 text-white rounded-full flex items-center justify-center hover:bg-pink-700 transition-colors text-2xl">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="{{ config.SOCIAL_MEDIA.linkedin }}" class="w-12 h-12 bg-blue-800 text-white rounded-full flex items-center justify-center hover:bg-blue-900 transition-colors text-2xl">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
                 </div>
             </div>
         </div>
@@ -135,6 +146,7 @@
         </a>
     </div>
 </section>
+{% endblock %}
 
 {% block extra_js %}
 <script>
@@ -152,34 +164,10 @@ document.addEventListener('DOMContentLoaded', function() {
         rootMargin: '0px 0px -50px 0px'
     });
 
-    const slideObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('opacity-100', 'translate-x-0');
-                slideObserver.unobserve(entry.target);
-            }
-        });
-    }, {
-        threshold: 0.2,
-        rootMargin: '0px 0px -100px 0px'
-    });
-
     // Observe header and section elements
     document.querySelectorAll('.animate-header, .animate-section').forEach(element => {
         fadeUpObserver.observe(element);
     });
-
-    // Observe content sections
-    document.querySelectorAll('.contact-content, .map-container').forEach(element => {
-        slideObserver.observe(element);
-    });
-
-    // Observe contact cards and social links
-    document.querySelectorAll('.contact-card, .social-links').forEach(element => {
-        fadeUpObserver.observe(element);
-    });
 });
 </script>
-{% endblock %}
-
 {% endblock %} 

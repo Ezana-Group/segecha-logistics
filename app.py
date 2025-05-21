@@ -17,6 +17,11 @@ migrate = Migrate(app, db)
 mail = Mail(app)
 app.cli.add_command(init_db_command)
 
+# Make config available in all templates
+@app.context_processor
+def inject_config():
+    return dict(config=app.config)
+
 OSRM_URL = "https://router.project-osrm.org/route/v1/driving/{},{};{},{}"
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
 NOMINATIM_REVERSE_URL = "https://nominatim.openstreetmap.org/reverse"
@@ -204,11 +209,19 @@ def get_route():
 
 def send_confirmation_email(quote_request):
     try:
+        # Send to the customer
         msg = Message('Quote Request Confirmation - Segecha Logistics',
                       sender=app.config['MAIL_DEFAULT_SENDER'],
                       recipients=[quote_request.email])
         msg.html = render_template('email/quote_confirmation.html', quote=quote_request, name=quote_request.name)
         mail.send(msg)
+
+        # Always send a copy to segechagroup@gmail.com
+        admin_msg = Message('New Quote Request - Segecha Logistics',
+                          sender=app.config['MAIL_DEFAULT_SENDER'],
+                          recipients=['segechagroup@gmail.com'])
+        admin_msg.html = render_template('email/quote_admin_notification.html', quote=quote_request)
+        mail.send(admin_msg)
     except Exception as e:
         print(f"Email send error: {e}")
 

@@ -22,6 +22,8 @@
     <link rel="preload" href="{{ url_for('static', filename='css/style.css') }}" as="style">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo-icon.png') }}">
+    
     <script>
         tailwind.config = {
             theme: {
@@ -92,8 +94,9 @@
     <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center h-16">
-                <a href="{{ url_for('index') }}" class="text-2xl font-bold text-brand-primary hover:text-brand-primaryDark transition-colors">
-                    Segecha Group
+                <a href="{{ url_for('index') }}" class="flex items-center space-x-3">
+                    <img src="{{ url_for('static', filename='images/logo-main.png') }}" alt="Segecha Group Logo" class="h-10 w-auto">
+                    <img src="{{ url_for('static', filename='images/logo-sg-group.png') }}" alt="SG Segecha Group Lettering" class="h-8 w-auto hidden sm:inline-block">
                 </a>
                 
                 <!-- Desktop menu -->
@@ -130,6 +133,9 @@
             
             <!-- Mobile menu -->
             <div id="mobile-menu" class="hidden md:hidden py-4 border-t">
+                <div class="flex justify-center mb-4">
+                    <img src="{{ url_for('static', filename='images/logo-sg.png') }}" alt="SG Logo" class="h-10 w-auto">
+                </div>
                 <div class="space-y-2">
                     <a href="{{ url_for('services') }}" 
                        class="block py-2 text-sm text-brand-text hover:text-brand-primary transition-colors {{ 'text-brand-primary' if request.endpoint == 'services' }}">
@@ -179,6 +185,7 @@
         <div class="container mx-auto px-4">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
                 <div>
+                    <img src="{{ url_for('static', filename='images/logo-main.png') }}" alt="Segecha Group Logo" class="h-12 w-auto mb-4">
                     <h3 class="text-xl font-bold mb-6">Segecha Group Ltd.</h3>
                     <p class="text-white/80 mb-4">Delivering peace of mind, one shipment at a time. Your trusted partner for reliable long-haul freight across East Africa.</p>
                     <div class="flex space-x-4">
@@ -208,10 +215,13 @@
                 <div>
                     <h3 class="text-lg font-semibold mb-6">Get in Touch</h3>
                     <ul class="space-y-3 text-white/80">
-                        <li><i class="fas fa-phone mr-2"></i>+254 XXX XXX XXX</li>
-                        <li><i class="fas fa-envelope mr-2"></i>info@segecha.com</li>
-                        <li><i class="fas fa-map-marker-alt mr-2"></i>Nairobi, Kenya</li>
-                        <li><i class="fas fa-clock mr-2"></i>24/7 Customer Support</li>
+                        <li><i class="fas fa-phone mr-2"></i><a href="tel:{{ config.CONTACT_PHONE_1|replace(' ', '') }}" class="hover:underline text-white/80">{{ config.CONTACT_PHONE_1 }}</a></li>
+                        <li><i class="fas fa-phone mr-2"></i><a href="tel:{{ config.CONTACT_PHONE_2|replace(' ', '') }}" class="hover:underline text-white/80">{{ config.CONTACT_PHONE_2 }}</a></li>
+                        <li><i class="fas fa-envelope mr-2"></i><a href="mailto:{{ config.CONTACT_EMAIL }}" class="hover:underline text-white/80">{{ config.CONTACT_EMAIL }}</a></li>
+                        <li><i class="fas fa-map-marker-alt mr-2"></i><a href="https://www.google.com/maps/search/?api=1&query=Mombasa+Port%2C+Shed+12%2C+Port+Reitz+Road%2C+Mombasa%2C+Kenya" target="_blank" rel="noopener" class="hover:underline text-white/80">{{ config.CONTACT_ADDRESS }}</a></li>
+                        <li><i class="fas fa-clock mr-2"></i>{{ config.CONTACT_BUSINESS_HOURS.weekdays }}</li>
+                        <li><i class="fas fa-clock mr-2"></i>{{ config.CONTACT_BUSINESS_HOURS.saturday }}</li>
+                        <li><i class="fas fa-clock mr-2"></i>{{ config.CONTACT_BUSINESS_HOURS.sunday }}</li>
                     </ul>
                 </div>
             </div>
