@@ -959,8 +959,14 @@
                         <h3 class="font-semibold mb-2">Need Immediate Assistance?</h3>
                         <p class="text-gray-600 mb-4">Contact our team directly:</p>
                         <div class="space-y-2">
-                            <p><i class="fas fa-phone text-blue-600 mr-2"></i>+254 XXX XXX XXX</p>
-                            <p><i class="fas fa-envelope text-blue-600 mr-2"></i>info@segecha.com</p>
+                            <p>
+                                <i class="fas fa-phone text-blue-600 mr-2"></i>
+                                <a href="tel:{{ config.CONTACT_PHONE_1|replace(' ', '') }}" class="hover:underline text-blue-600">{{ config.CONTACT_PHONE_1 }}</a>
+                            </p>
+                            <p>
+                                <i class="fas fa-envelope text-blue-600 mr-2"></i>
+                                <a href="mailto:{{ config.CONTACT_EMAIL }}" class="hover:underline text-blue-600">{{ config.CONTACT_EMAIL }}</a>
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -1142,12 +1148,6 @@ function initializeFormHandlers() {
                     // Show success modal
                     const successModal = document.getElementById('successModal');
                     successModal.classList.remove('hidden');
-                    
-                    // Prevent closing the modal
-                    const closeButton = successModal.querySelector('button');
-                    if (closeButton) {
-                        closeButton.style.display = 'none';
-                    }
                     
                     // Update browser history to prevent going back to form
                     window.history.pushState({}, '', '/quote-submitted');

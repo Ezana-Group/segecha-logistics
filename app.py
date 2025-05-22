@@ -213,14 +213,23 @@ def send_confirmation_email(quote_request):
         msg = Message('Quote Request Confirmation - Segecha Logistics',
                       sender=app.config['MAIL_DEFAULT_SENDER'],
                       recipients=[quote_request.email])
-        msg.html = render_template('email/quote_confirmation.html', quote=quote_request, name=quote_request.name)
+        msg.html = render_template(
+            'email/quote_confirmation.html',
+            quote=quote_request,
+            name=quote_request.name,
+            now=datetime.utcnow()
+        )
         mail.send(msg)
 
         # Always send a copy to segechagroup@gmail.com
         admin_msg = Message('New Quote Request - Segecha Logistics',
                           sender=app.config['MAIL_DEFAULT_SENDER'],
                           recipients=['segechagroup@gmail.com'])
-        admin_msg.html = render_template('email/quote_admin_notification.html', quote=quote_request)
+        admin_msg.html = render_template(
+            'email/quote_admin_notification.html',
+            quote=quote_request,
+            now=datetime.utcnow()
+        )
         mail.send(admin_msg)
     except Exception as e:
         print(f"Email send error: {e}")
