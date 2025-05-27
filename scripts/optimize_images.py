@@ -36,19 +36,19 @@ def main():
     
     # Image size configurations
     image_sizes = {
-        'hero_mercedes_actros': (1920, 1080),
-        'hero_truck': (800, 600),
-        'fleet_tracking_room': (800, 600),
-        'tracking_page_map': (800, 600),
-        'fleet_africa': (800, 600),
-        'team_dispatch': (800, 600),
-        'border_checkpoint': (800, 600),
-        'warehouse_loading': (800, 600),
-        'gps_tracking_map': (800, 600),
-        'logo-main': (144, 48),
-        'logo-sg-group': (160, 32),
-        'logo-sg': (40, 40),
-        'logo-icon': (40, 40)
+        'hero_mercedes_actros': (800, 450),
+        'hero_truck': (600, 450),
+        'fleet_tracking_room': (600, 450),
+        'tracking_page_map': (600, 450),
+        'fleet_africa': (600, 450),
+        'team_dispatch': (600, 450),
+        'border_checkpoint': (600, 450),
+        'warehouse_loading': (600, 450),
+        'gps_tracking_map': (600, 450),
+        'logo-main': (120, 40),
+        'logo-sg-group': (120, 24),
+        'logo-sg': (32, 32),
+        'logo-icon': (32, 32)
     }
     
     # Process all images in the static/images directory

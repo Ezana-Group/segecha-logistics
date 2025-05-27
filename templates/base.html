@@ -18,7 +18,7 @@
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style">
     <link rel="preload" href="{{ url_for('static', filename='css/style.css') }}" as="style">
     <link rel="preload" href="https://cdn.tailwindcss.com?v=3.4.1" as="script">
-    <link rel="preload" href="{{ url_for('static', filename='images/logo-main.png') }}" as="image">
+    <link rel="preload" href="{{ url_for('static', filename='images/optimized/logo-main.webp') }}" as="image" type="image/webp">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -126,7 +126,13 @@
                 <a href="{{ url_for('index') }}" class="flex items-center space-x-3">
                     <picture>
                         <source srcset="{{ url_for('static', filename='images/optimized/logo-main.webp') }}" type="image/webp">
-                        <img src="{{ url_for('static', filename='images/logo-main.png') }}" alt="Segecha Group Logo" class="h-10 w-auto" width="120" height="40">
+                        <img src="{{ url_for('static', filename='images/logo-main.png') }}" 
+                             alt="Segecha Group Logo" 
+                             class="h-10 w-auto" 
+                             width="120" 
+                             height="40"
+                             fetchpriority="high"
+                             loading="eager">
                     </picture>
                     <picture>
                         <source srcset="{{ url_for('static', filename='images/optimized/logo-sg-group.webp') }}" type="image/webp">
@@ -161,8 +167,10 @@
                 </div>
 
                 <!-- Mobile menu button -->
-                <button id="mobile-menu-button" class="md:hidden text-brand-text hover:text-brand-primary transition-colors">
-                    <i class="fas fa-bars text-2xl"></i>
+                <button id="mobile-menu-button" 
+                        class="md:hidden text-brand-text hover:text-brand-primary transition-colors"
+                        aria-label="Toggle mobile menu">
+                    <i class="fas fa-bars text-2xl" aria-hidden="true"></i>
                 </button>
             </div>
             
@@ -230,9 +238,27 @@
                     <h3 class="text-xl font-bold mb-6">Segecha Group Ltd.</h3>
                     <p class="text-white/80 mb-4">Delivering peace of mind, one shipment at a time. Your trusted partner for reliable long-haul freight across East Africa.</p>
                     <div class="flex space-x-4">
-                        <a href="https://web.facebook.com/people/Segecha-Group-Ltd/61576363814704/?sk=about" target="_blank" class="text-white/80 hover:text-brand-accent transition-colors"><i class="fab fa-facebook-f"></i></a>
-                        <a href="https://www.linkedin.com/company/segechagroup" target="_blank" class="text-white/80 hover:text-brand-accent transition-colors"><i class="fab fa-linkedin-in"></i></a>
-                        <a href="https://instagram.com/segechagroup" target="_blank" class="text-white/80 hover:text-brand-accent transition-colors"><i class="fab fa-instagram"></i></a>
+                        <a href="https://web.facebook.com/people/Segecha-Group-Ltd/61576363814704/?sk=about" 
+                           target="_blank" 
+                           rel="noopener noreferrer"
+                           class="text-white/80 hover:text-brand-accent transition-colors"
+                           aria-label="Visit our Facebook page">
+                            <i class="fab fa-facebook-f" aria-hidden="true"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/company/segechagroup" 
+                           target="_blank" 
+                           rel="noopener noreferrer"
+                           class="text-white/80 hover:text-brand-accent transition-colors"
+                           aria-label="Visit our LinkedIn page">
+                            <i class="fab fa-linkedin-in" aria-hidden="true"></i>
+                        </a>
+                        <a href="https://instagram.com/segechagroup" 
+                           target="_blank" 
+                           rel="noopener noreferrer"
+                           class="text-white/80 hover:text-brand-accent transition-colors"
+                           aria-label="Visit our Instagram page">
+                            <i class="fab fa-instagram" aria-hidden="true"></i>
+                        </a>
                     </div>
                 </div>
                 <div>
