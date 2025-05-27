@@ -6,9 +6,19 @@ def optimize_image(input_path, output_path, max_width=None, max_height=None, qua
     """Optimize and resize an image."""
     try:
         with Image.open(input_path) as img:
-            # Preserve transparency for PNG files
+            # Special handling for logo files
+            if 'logo' in input_path.lower():
+                # Force RGBA mode for logos to preserve transparency
+                if img.mode != 'RGBA':
+                    img = img.convert('RGBA')
+                # Save logos with lossless compression to preserve quality
+                img = img.resize(img.size, Image.Resampling.LANCZOS)
+                img.save(output_path, 'WEBP', quality=100, method=6, lossless=True)
+                print(f"Optimized logo: {output_path}")
+                return
+
+            # Regular image handling
             if img.mode in ('RGBA', 'P'):
-                # Keep the original mode for PNG files
                 img = img.convert('RGBA')
             else:
                 img = img.convert('RGB')
@@ -26,8 +36,8 @@ def optimize_image(input_path, output_path, max_width=None, max_height=None, qua
                     height = max_height
                 img = img.resize((width, height), Image.Resampling.LANCZOS)
             
-            # Save as WebP with transparency support
-            img.save(output_path, 'WEBP', quality=quality, method=6, lossless=False)
+            # Save as WebP
+            img.save(output_path, 'WEBP', quality=quality, method=6)
             print(f"Optimized: {output_path}")
     except Exception as e:
         print(f"Error processing {input_path}: {str(e)}")
