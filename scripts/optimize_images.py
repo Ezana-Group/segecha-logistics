@@ -6,12 +6,25 @@ def optimize_image(input_path, output_path, max_width=None, max_height=None, qua
     """Optimize and resize an image."""
     try:
         with Image.open(input_path) as img:
-            # Special handling for logo files
+            filename = os.path.basename(input_path)
+            # Special handling for logo-sg-group: flatten onto white background
+            if filename.lower() == 'logo-sg-group.png':
+                if img.mode in ('RGBA', 'P'):
+                    bg = Image.new('RGB', img.size, (255, 255, 255))
+                    img = img.convert('RGBA')
+                    bg.paste(img, mask=img.split()[3])
+                    img = bg
+                else:
+                    img = img.convert('RGB')
+                img = img.resize(img.size, Image.Resampling.LANCZOS)
+                img.save(output_path, 'WEBP', quality=100, method=6)
+                print(f"Optimized logo-sg-group with white background: {output_path}")
+                return
+
+            # Special handling for other logo files
             if 'logo' in input_path.lower():
-                # Force RGBA mode for logos to preserve transparency
                 if img.mode != 'RGBA':
                     img = img.convert('RGBA')
-                # Save logos with lossless compression to preserve quality
                 img = img.resize(img.size, Image.Resampling.LANCZOS)
                 img.save(output_path, 'WEBP', quality=100, method=6, lossless=True)
                 print(f"Optimized logo: {output_path}")
