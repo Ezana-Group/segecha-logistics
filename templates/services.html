@@ -16,9 +16,13 @@
             <!-- Long-Haul Freight -->
             <div class="bg-white p-8 rounded-lg shadow-lg opacity-0 translate-y-8 transition-all duration-700 service-card">
                 <div class="relative h-[200px] mb-6 rounded-lg overflow-hidden">
-                    <img src="{{ url_for('static', filename='images/hero_truck.jpg') }}" 
-                         alt="Long-Haul Freight" 
-                         class="absolute inset-0 w-full h-full object-cover">
+                    <picture>
+                        <source srcset="{{ url_for('static', filename='images/optimized/hero_truck.webp') }}" type="image/webp">
+                        <img src="{{ url_for('static', filename='images/hero_truck.jpg') }}" 
+                             alt="Long-Haul Freight" 
+                             class="absolute inset-0 w-full h-full object-cover"
+                             width="800" height="600">
+                    </picture>
                 </div>
                 <h2 class="text-2xl font-bold mb-4">Long-Haul Freight</h2>
                 <p class="text-gray-600 mb-4">
@@ -39,9 +43,13 @@
             <!-- Fleet Tracking & Dispatch -->
             <div class="bg-white p-8 rounded-lg shadow-lg opacity-0 translate-y-8 transition-all duration-700 delay-100 service-card">
                 <div class="relative h-[200px] mb-6 rounded-lg overflow-hidden">
-                    <img src="{{ url_for('static', filename='images/gps_tracking_map.jpg') }}" 
-                         alt="Fleet Tracking" 
-                         class="absolute inset-0 w-full h-full object-cover">
+                    <picture>
+                        <source srcset="{{ url_for('static', filename='images/optimized/gps_tracking_map.webp') }}" type="image/webp">
+                        <img src="{{ url_for('static', filename='images/gps_tracking_map.jpg') }}" 
+                             alt="Fleet Tracking" 
+                             class="absolute inset-0 w-full h-full object-cover"
+                             width="800" height="600">
+                    </picture>
                 </div>
                 <h2 class="text-2xl font-bold mb-4">Fleet Tracking & Dispatch</h2>
                 <p class="text-gray-600 mb-4">
@@ -62,9 +70,13 @@
             <!-- Cross-Border Transport -->
             <div class="bg-white p-8 rounded-lg shadow-lg opacity-0 translate-y-8 transition-all duration-700 delay-200 service-card">
                 <div class="relative h-[200px] mb-6 rounded-lg overflow-hidden">
-                    <img src="{{ url_for('static', filename='images/border_checkpoint.jpg') }}" 
-                         alt="Cross-Border Transport" 
-                         class="absolute inset-0 w-full h-full object-cover">
+                    <picture>
+                        <source srcset="{{ url_for('static', filename='images/optimized/border_checkpoint.webp') }}" type="image/webp">
+                        <img src="{{ url_for('static', filename='images/border_checkpoint.jpg') }}" 
+                             alt="Cross-Border Transport" 
+                             class="absolute inset-0 w-full h-full object-cover"
+                             width="800" height="600">
+                    </picture>
                 </div>
                 <h2 class="text-2xl font-bold mb-4">Cross-Border Transport</h2>
                 <p class="text-gray-600 mb-4">
@@ -85,9 +97,13 @@
             <!-- Warehouse & Distribution -->
             <div class="bg-white p-8 rounded-lg shadow-lg opacity-0 translate-y-8 transition-all duration-700 delay-300 service-card">
                 <div class="relative h-[200px] mb-6 rounded-lg overflow-hidden">
-                    <img src="{{ url_for('static', filename='images/warehouse_loading.jpg') }}" 
-                         alt="Warehouse & Distribution" 
-                         class="absolute inset-0 w-full h-full object-cover">
+                    <picture>
+                        <source srcset="{{ url_for('static', filename='images/optimized/warehouse_loading.webp') }}" type="image/webp">
+                        <img src="{{ url_for('static', filename='images/warehouse_loading.jpg') }}" 
+                             alt="Warehouse & Distribution" 
+                             class="absolute inset-0 w-full h-full object-cover"
+                             width="800" height="600">
+                    </picture>
                 </div>
                 <h2 class="text-2xl font-bold mb-4">Warehouse & Distribution</h2>
                 <p class="text-gray-600 mb-4">

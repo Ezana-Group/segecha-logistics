@@ -2,7 +2,14 @@
 
 {% block content %}
 <!-- Hero Section -->
-<section class="hero h-screen bg-cover bg-center relative overflow-hidden" style="background-image: url('/static/images/hero_mercedes_actros.jpg');">
+<section class="hero h-screen bg-cover bg-center relative overflow-hidden">
+    <picture class="absolute inset-0">
+        <source srcset="{{ url_for('static', filename='images/optimized/hero_mercedes_actros.webp') }}" type="image/webp">
+        <img src="{{ url_for('static', filename='images/hero_mercedes_actros.jpg') }}" 
+             alt="Mercedes Actros Truck" 
+             class="absolute inset-0 w-full h-full object-cover"
+             width="1920" height="1080">
+    </picture>
     <!-- Animated gradient overlay -->
     <div class="absolute inset-0 bg-gradient-to-r from-black/80 to-black/60 animate-gradient"></div>
     
@@ -79,17 +86,25 @@
                     </a>
                 </div>
                 <div class="relative h-[300px] rounded-lg overflow-hidden shadow-xl opacity-0 translate-x-[50px] transition-all duration-700 service-image">
-                    <img src="{{ url_for('static', filename='images/hero_truck.jpg') }}" 
-                         alt="Long-Haul Transport" 
-                         class="absolute inset-0 w-full h-full object-cover">
+                    <picture>
+                        <source srcset="{{ url_for('static', filename='images/optimized/hero_truck.webp') }}" type="image/webp">
+                        <img src="{{ url_for('static', filename='images/hero_truck.jpg') }}" 
+                             alt="Long-Haul Transport" 
+                             class="absolute inset-0 w-full h-full object-cover"
+                             width="800" height="600">
+                    </picture>
                 </div>
             </div>
             <!-- Fleet Management -->
             <div class="grid md:grid-cols-2 gap-12 items-center mb-20">
                 <div class="relative h-[300px] rounded-lg overflow-hidden shadow-xl order-2 md:order-1 opacity-0 translate-x-[-50px] transition-all duration-700 service-image">
-                    <img src="{{ url_for('static', filename='images/fleet_tracking_room.jpg') }}" 
-                         alt="Fleet Management" 
-                         class="absolute inset-0 w-full h-full object-cover">
+                    <picture>
+                        <source srcset="{{ url_for('static', filename='images/optimized/fleet_tracking_room.webp') }}" type="image/webp">
+                        <img src="{{ url_for('static', filename='images/fleet_tracking_room.jpg') }}" 
+                             alt="Fleet Management" 
+                             class="absolute inset-0 w-full h-full object-cover"
+                             width="800" height="600">
+                    </picture>
                 </div>
                 <div class="order-1 md:order-2 opacity-0 translate-x-[50px] transition-all duration-700 service-content">
                     <h3 class="text-2xl font-bold text-brand-primary mb-4">Smart Fleet Management</h3>
@@ -127,9 +142,13 @@
                     </a>
                 </div>
                 <div class="relative h-[300px] rounded-lg overflow-hidden shadow-xl opacity-0 translate-x-[50px] transition-all duration-700 service-image">
-                    <img src="{{ url_for('static', filename='images/tracking_page_map.jpg') }}" 
-                         alt="Route Optimization" 
-                         class="absolute inset-0 w-full h-full object-cover">
+                    <picture>
+                        <source srcset="{{ url_for('static', filename='images/optimized/tracking_page_map.webp') }}" type="image/webp">
+                        <img src="{{ url_for('static', filename='images/tracking_page_map.jpg') }}" 
+                             alt="Route Optimization" 
+                             class="absolute inset-0 w-full h-full object-cover"
+                             width="800" height="600">
+                    </picture>
                 </div>
             </div>
         </div>

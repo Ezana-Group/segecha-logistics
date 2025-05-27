@@ -31,9 +31,13 @@
                 </p>
             </div>
             <div class="relative h-[400px] opacity-0 translate-x-[50px] transition-all duration-700 about-image">
-                <img src="{{ url_for('static', filename='images/fleet_africa.jpg') }}" 
-                     alt="Segecha Fleet" 
-                     class="absolute inset-0 w-full h-full object-cover rounded-lg shadow-xl">
+                <picture>
+                    <source srcset="{{ url_for('static', filename='images/optimized/fleet_africa.webp') }}" type="image/webp">
+                    <img src="{{ url_for('static', filename='images/fleet_africa.jpg') }}" 
+                         alt="Segecha Fleet" 
+                         class="absolute inset-0 w-full h-full object-cover rounded-lg shadow-xl"
+                         width="800" height="600">
+                </picture>
             </div>
         </div>
     </div>
@@ -80,9 +84,13 @@
     <div class="container mx-auto px-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div class="relative h-[400px] opacity-0 translate-x-[-50px] transition-all duration-700 team-image">
-                <img src="{{ url_for('static', filename='images/team_dispatch.jpg') }}" 
-                     alt="Segecha Team" 
-                     class="absolute inset-0 w-full h-full object-cover rounded-lg shadow-xl">
+                <picture>
+                    <source srcset="{{ url_for('static', filename='images/optimized/team_dispatch.webp') }}" type="image/webp">
+                    <img src="{{ url_for('static', filename='images/team_dispatch.jpg') }}" 
+                         alt="Segecha Team" 
+                         class="absolute inset-0 w-full h-full object-cover rounded-lg shadow-xl"
+                         width="800" height="600">
+                </picture>
             </div>
             <div class="opacity-0 translate-x-[50px] transition-all duration-700 team-content">
                 <h2 class="text-3xl font-bold mb-6">Our Team</h2>
