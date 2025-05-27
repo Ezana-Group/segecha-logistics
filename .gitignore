@@ -7,3 +7,6 @@ instance/
 *.sqlite
 *.db
 venv/
+
+# Ignore Google credentials file
+credentials/google-credentials.json

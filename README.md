@@ -305,4 +305,79 @@ For support, email support@segecha.com or WhatsApp +254 XXX XXX XXX.
 For technical support or configuration assistance:
 - Email: support@segecha.com
 - Phone: [Your Support Phone Number]
-- Hours: [Your Support Hours] 
+- Hours: [Your Support Hours]
+
+## Overview
+Segecha Logistics is a web application for managing logistics operations, including quote requests, tracking, and contact form submissions.
+
+## Setup Instructions
+
+### Prerequisites
+- Python 3.8 or higher
+- PostgreSQL
+- Google Cloud account (for Google Sheets integration)
+
+### Environment Setup
+1. Clone the repository:
+   ```sh
+   git clone <repository-url>
+   cd segecha_logistics_C
+   ```
+
+2. Create a virtual environment and activate it:
+   ```sh
+   python -m venv venv
+   source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+   ```
+
+3. Install dependencies:
+   ```sh
+   pip install -r requirements.txt
+   ```
+
+4. Create a `.env` file in the project root with the following variables:
+   ```
+   FLASK_APP=app.py
+   FLASK_ENV=production
+   SECRET_KEY=your-secret-key-here
+   DATABASE_URL=postgresql://username:password@localhost:5432/segecha
+   MAIL_SERVER=smtp.gmail.com
+   MAIL_PORT=587
+   MAIL_USE_TLS=True
+   MAIL_USERNAME=your-email@gmail.com
+   MAIL_PASSWORD=your-email-password
+   MAIL_DEFAULT_SENDER=your-email@gmail.com
+   ```
+
+5. Set up the database:
+   ```sh
+   flask db upgrade
+   ```
+
+### Running the Application
+- **Development:**
+  ```sh
+  flask run
+  ```
+
+- **Production:**
+  ```sh
+  gunicorn app:app
+  ```
+
+## Deployment
+- Deploy the application on a cloud platform (e.g., AWS, Google Cloud, Heroku) or a VPS.
+- Ensure HTTPS is enabled using a reverse proxy (e.g., Nginx, Apache) or a service like Let's Encrypt.
+
+## Monitoring and Logging
+- Set up logging to capture errors and important events.
+- Use a monitoring service (e.g., Sentry, New Relic) to track application performance and errors.
+
+## Testing
+- Run tests:
+  ```sh
+  pytest
+  ```
+
+## License
+This project is licensed under the MIT License. 

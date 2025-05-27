@@ -1,15 +1,31 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, session
 from flask_migrate import Migrate
-from datetime import datetime
+from datetime import datetime, timedelta
 import requests
 from config import Config
-from database import db, QuoteRequest, Shipment
+from database import db, Shipment, QuoteRequest
 from cities import EAST_AFRICAN_CITIES
 from flask_mail import Mail, Message
 from commands import init_db_command
+import os
+import json
+import gspread
+from google.oauth2.service_account import Credentials
+from dotenv import load_dotenv
+
+load_dotenv()  # Load environment variables from .env file
 
 app = Flask(__name__)
 app.config.from_object(Config)
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['MAIL_SERVER'] = os.getenv('MAIL_SERVER')
+app.config['MAIL_PORT'] = int(os.getenv('MAIL_PORT'))
+app.config['MAIL_USE_TLS'] = os.getenv('MAIL_USE_TLS') == 'True'
+app.config['MAIL_USERNAME'] = os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.getenv('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.getenv('MAIL_DEFAULT_SENDER')
 
 # Initialize extensions
 db.init_app(app)
@@ -50,6 +66,32 @@ def terms_of_service():
 def cookie_policy():
     return render_template('legal/cookie_policy.html', now=datetime.now())
 
+def append_quote_to_sheet(quote_request):
+    SERVICE_ACCOUNT_FILE = 'credentials/google-credentials.json'
+    SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
+    creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+    gc = gspread.authorize(creds)
+    sh = gc.open_by_url('https://docs.google.com/spreadsheets/d/1Gpye3QPcrwNOUojF4if4M3J2WNTwgGFT-nfao8m2Lhc/edit?gid=0')
+    worksheet = sh.sheet1
+    row = [
+        str(quote_request.created_at),  # Date
+        quote_request.name,  # Name
+        quote_request.company,  # Company
+        quote_request.email,  # Email
+        quote_request.phone,  # Phone Number
+        quote_request.pickup_location,  # Pickup Address
+        f"{quote_request.pickup_lat:.6f},{quote_request.pickup_lng:.6f}",  # Pickup Coordinates
+        quote_request.dropoff_location,  # Dropoff Address
+        f"{quote_request.dropoff_lat:.6f},{quote_request.dropoff_lng:.6f}",  # Dropoff Coordinates
+        quote_request.estimated_distance,  # Distance
+        quote_request.cargo_description,  # Cargo description
+        str(quote_request.preferred_date),  # Pick up Date
+        quote_request.additional_notes,  # Notes
+        ""  # Special Instruction (empty for now)
+    ]
+    print(f"Appending row to Google Sheet: {row}")  # Debug logging
+    worksheet.append_row(row)
+
 @app.route('/quote', methods=['GET', 'POST'])
 def quote():
     if request.method == 'POST':
@@ -85,6 +127,7 @@ def quote():
             )
             db.session.add(quote_request)
             db.session.commit()
+            append_quote_to_sheet(quote_request)
             send_confirmation_email(quote_request)
             return jsonify({'success': True, 'message': 'Quote submitted'})
         except Exception as e:
@@ -234,336 +277,35 @@ def send_confirmation_email(quote_request):
     except Exception as e:
         print(f"Email send error: {e}")
 
-@app.route('/contact')
+@app.route('/contact', methods=['GET', 'POST'])
 def contact():
+    if request.method == 'POST':
+        try:
+            # Send email notification
+            msg = Message('New Contact Form Submission - Segecha Logistics',
+                         sender=app.config['MAIL_DEFAULT_SENDER'],
+                         recipients=['segechagroup@gmail.com'])
+            msg.html = render_template(
+                'email/contact_notification.html',
+                name=request.form['name'],
+                email=request.form['email'],
+                phone=request.form['phone'],
+                message=request.form['message'],
+                now=datetime.utcnow()
+            )
+            mail.send(msg)
+            flash('Thank you for your message. We will get back to you soon!', 'success')
+            return redirect(url_for('contact'))
+        except Exception as e:
+            print(f"Error sending contact form: {e}")
+            flash('Sorry, there was an error sending your message. Please try again later.', 'error')
+            return redirect(url_for('contact'))
     return render_template('contact.html', now=datetime.now())
 
 @app.after_request
 def add_cache_control(response):
-    if request.path.startswith('/static/'):
-        response.headers['Cache-Control'] = 'public, max-age=31536000'
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     return response
 
-@app.route('/admin')
-def admin_dashboard():
-    quote_requests = QuoteRequest.query.order_by(QuoteRequest.created_at.desc()).all()
-    recent_shipments = Shipment.query.order_by(Shipment.created_at.desc()).limit(5).all()
-    reviewed_awaiting_shipment = QuoteRequest.query.filter_by(reviewed=True).filter(QuoteRequest.shipment == None).order_by(QuoteRequest.created_at.desc()).all()
-    return render_template('admin_dashboard.html', now=datetime.now(), quote_requests=quote_requests, recent_shipments=recent_shipments, reviewed_awaiting_shipment=reviewed_awaiting_shipment)
-
-@app.route('/test')
-def test():
-    return "Test route is working!"
-
-@app.route('/admin/shipments')
-def admin_shipments():
-    shipments = Shipment.query.order_by(Shipment.created_at.desc()).all()
-    return render_template('admin/admin_shipments.html', shipments=shipments, now=datetime.now())
-
-@app.route('/admin/new-shipment', methods=['GET', 'POST'])
-def new_shipment():
-    quote_request = None
-    quote_request_id = request.args.get('quote_request_id')
-    if quote_request_id:
-        quote_request = QuoteRequest.query.get(quote_request_id)
-    if request.method == 'POST':
-        try:
-            # Parse pickup date and time
-            pickup_date = None
-            if request.form.get('pickup_date'):
-                pickup_date = datetime.strptime(request.form.get('pickup_date'), '%Y-%m-%d')
-            
-            pickup_time = request.form.get('pickup_time')
-            
-            # Parse estimated delivery date and time
-            estimated_delivery = None
-            if request.form.get('estimated_delivery_date') and request.form.get('estimated_delivery_time'):
-                estimated_delivery = datetime.strptime(
-                    f"{request.form.get('estimated_delivery_date')} {request.form.get('estimated_delivery_time')}", 
-                    '%Y-%m-%d %H:%M'
-                )
-
-            # Create new shipment
-            shipment = Shipment(
-                customer_name=request.form['customer_name'],
-                pickup_location=request.form['pickup_location'],
-                pickup_lat=float(request.form.get('pickup_lat', 0)),
-                pickup_lng=float(request.form.get('pickup_lng', 0)),
-                dropoff_location=request.form['dropoff_location'],
-                dropoff_lat=float(request.form.get('dropoff_lat', 0)),
-                dropoff_lng=float(request.form.get('dropoff_lng', 0)),
-                cargo_description=request.form['cargo_description'],
-                pickup_date=pickup_date,
-                pickup_time=pickup_time,
-                vehicle_plate=request.form.get('vehicle_plate'),
-                pickup_status=request.form.get('pickup_status', 'Pending'),
-                pickup_notes=request.form.get('pickup_notes'),
-                status=request.form.get('status', 'Pending'),
-                estimated_delivery=estimated_delivery,
-                notes=request.form.get('notes'),
-                quote_request_id=quote_request.id if quote_request else None
-            )
-            db.session.add(shipment)
-            db.session.commit()
-            flash('Shipment created successfully!', 'success')
-            return redirect(url_for('admin_shipments'))
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Error creating shipment: {str(e)}', 'error')
-            return redirect(url_for('new_shipment'))
-    return render_template(
-        'admin/shipment_form.html',
-        shipment=None,
-        quote_request=quote_request,
-        now=datetime.now(),
-        countries=list(EAST_AFRICAN_CITIES.keys()),
-        EAST_AFRICAN_CITIES=EAST_AFRICAN_CITIES
-    )
-
-@app.route('/admin/edit-shipment/<int:id>', methods=['GET', 'POST'])
-def edit_shipment(id):
-    shipment = Shipment.query.get_or_404(id)
-    
-    if request.method == 'POST':
-        try:
-            # Parse pickup date and time
-            pickup_date = None
-            if request.form.get('pickup_date'):
-                pickup_date = datetime.strptime(request.form.get('pickup_date'), '%Y-%m-%d')
-            
-            pickup_time = request.form.get('pickup_time')
-            
-            # Parse estimated delivery date and time
-            estimated_delivery = None
-            if request.form.get('estimated_delivery_date') and request.form.get('estimated_delivery_time'):
-                estimated_delivery = datetime.strptime(
-                    f"{request.form.get('estimated_delivery_date')} {request.form.get('estimated_delivery_time')}", 
-                    '%Y-%m-%d %H:%M'
-                )
-
-            # Update shipment
-            shipment.customer_name = request.form['customer_name']
-            shipment.pickup_location = request.form['pickup_location']
-            shipment.pickup_lat = float(request.form.get('pickup_lat', 0))
-            shipment.pickup_lng = float(request.form.get('pickup_lng', 0))
-            shipment.dropoff_location = request.form['dropoff_location']
-            shipment.dropoff_lat = float(request.form.get('dropoff_lat', 0))
-            shipment.dropoff_lng = float(request.form.get('dropoff_lng', 0))
-            shipment.cargo_description = request.form['cargo_description']
-            shipment.pickup_date = pickup_date
-            shipment.pickup_time = pickup_time
-            shipment.vehicle_plate = request.form.get('vehicle_plate')
-            shipment.pickup_status = request.form.get('pickup_status', 'Pending')
-            shipment.pickup_notes = request.form.get('pickup_notes')
-            shipment.status = request.form.get('status', 'Pending')
-            shipment.estimated_delivery = estimated_delivery
-            shipment.notes = request.form.get('notes')
-            
-            db.session.commit()
-            flash('Shipment updated successfully!', 'success')
-            return redirect(url_for('admin_shipments'))
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Error updating shipment: {str(e)}', 'error')
-            return redirect(url_for('edit_shipment', id=id))
-    
-    return render_template('admin/shipment_form.html', shipment=shipment, quote_request=None, now=datetime.now())
-
-@app.route('/admin/mark-shipment-delivered/<int:id>', methods=['POST'])
-def mark_shipment_delivered(id):
-    shipment = Shipment.query.get_or_404(id)
-    try:
-        shipment.status = 'Delivered'
-        shipment.actual_delivery = datetime.utcnow()
-        db.session.commit()
-        flash('Shipment marked as delivered!', 'success')
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error marking shipment as delivered: {str(e)}', 'error')
-    return redirect(url_for('admin_shipments'))
-
-@app.route('/admin/delete-shipment/<int:id>', methods=['POST'])
-def delete_shipment(id):
-    shipment = Shipment.query.get_or_404(id)
-    try:
-        db.session.delete(shipment)
-        db.session.commit()
-        flash('Shipment deleted successfully!', 'success')
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error deleting shipment: {str(e)}', 'error')
-    return redirect(url_for('admin_shipments'))
-
-@app.route('/admin/new-quote', methods=['GET', 'POST'])
-def admin_new_quote():
-    if request.method == 'POST':
-        try:
-            preferred_date = None
-            if request.form.get('preferred_date'):
-                preferred_date = datetime.strptime(request.form.get('preferred_date'), '%Y-%m-%d').date()
-
-            pickup_location = f"{request.form.get('pickup_address')}, {request.form.get('pickup_city')}, {request.form.get('pickup_country')}"
-            dropoff_location = f"{request.form.get('dropoff_address')}, {request.form.get('dropoff_city')}, {request.form.get('dropoff_country')}"
-
-            pickup_lat = float(request.form.get('pickup_lat', 0))
-            pickup_lng = float(request.form.get('pickup_lng', 0))
-            dropoff_lat = float(request.form.get('dropoff_lat', 0))
-            dropoff_lng = float(request.form.get('dropoff_lng', 0))
-            estimated_distance = float(request.form.get('estimated_distance', 0))
-
-            quote_request = QuoteRequest(
-                name=request.form['name'],
-                company=request.form.get('company'),
-                email=request.form['email'],
-                phone=request.form['phone'],
-                pickup_location=pickup_location,
-                pickup_lat=pickup_lat,
-                pickup_lng=pickup_lng,
-                dropoff_location=dropoff_location,
-                dropoff_lat=dropoff_lat,
-                dropoff_lng=dropoff_lng,
-                estimated_distance=estimated_distance,
-                cargo_description=request.form['cargo_description'],
-                preferred_date=preferred_date,
-                additional_notes=request.form.get('additional_notes'),
-                reviewed=True  # Mark as reviewed since it's created by admin
-            )
-            db.session.add(quote_request)
-            db.session.commit()
-            
-            # Optionally create a shipment directly from this quote
-            if request.form.get('create_shipment') == 'yes':
-                shipment = Shipment(
-                    quote_request_id=quote_request.id,
-                    customer_name=quote_request.name,
-                    pickup_location=quote_request.pickup_location,
-                    pickup_lat=quote_request.pickup_lat,
-                    pickup_lng=quote_request.pickup_lng,
-                    dropoff_location=quote_request.dropoff_location,
-                    dropoff_lat=quote_request.dropoff_lat,
-                    dropoff_lng=quote_request.dropoff_lng,
-                    cargo_description=quote_request.cargo_description,
-                    status='Pending'
-                )
-                db.session.add(shipment)
-                db.session.commit()
-                flash('Quote created and shipment initiated!', 'success')
-                return redirect(url_for('admin_shipments'))
-            
-            flash('Quote created successfully!', 'success')
-            return redirect(url_for('admin_dashboard'))
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Error creating quote: {str(e)}', 'error')
-            return redirect(url_for('admin_new_quote'))
-    
-    countries = list(EAST_AFRICAN_CITIES.keys())
-    return render_template('admin/new_quote.html', 
-                         now=datetime.now(), 
-                         countries=countries, 
-                         EAST_AFRICAN_CITIES=EAST_AFRICAN_CITIES)
-
-@app.route('/admin/edit-quote/<int:id>', methods=['GET', 'POST'])
-def edit_quote(id):
-    quote = QuoteRequest.query.get_or_404(id)
-    
-    if request.method == 'POST':
-        try:
-            preferred_date = None
-            if request.form.get('preferred_date'):
-                preferred_date = datetime.strptime(request.form.get('preferred_date'), '%Y-%m-%d').date()
-
-            pickup_location = f"{request.form.get('pickup_address')}, {request.form.get('pickup_city')}, {request.form.get('pickup_country')}"
-            dropoff_location = f"{request.form.get('dropoff_address')}, {request.form.get('dropoff_city')}, {request.form.get('dropoff_country')}"
-
-            # Update quote fields
-            quote.name = request.form['name']
-            quote.company = request.form.get('company')
-            quote.email = request.form['email']
-            quote.phone = request.form['phone']
-            quote.pickup_location = pickup_location
-            quote.pickup_lat = float(request.form.get('pickup_lat', 0))
-            quote.pickup_lng = float(request.form.get('pickup_lng', 0))
-            quote.dropoff_location = dropoff_location
-            quote.dropoff_lat = float(request.form.get('dropoff_lat', 0))
-            quote.dropoff_lng = float(request.form.get('dropoff_lng', 0))
-            quote.estimated_distance = float(request.form.get('estimated_distance', 0))
-            quote.cargo_description = request.form['cargo_description']
-            quote.preferred_date = preferred_date
-            quote.additional_notes = request.form.get('additional_notes')
-            
-            db.session.commit()
-            flash('Quote updated successfully!', 'success')
-            return redirect(url_for('admin_dashboard'))
-        except Exception as e:
-            db.session.rollback()
-            flash(f'Error updating quote: {str(e)}', 'error')
-            return redirect(url_for('edit_quote', id=id))
-    
-    # Parse the pickup and dropoff locations to get address components
-    pickup_parts = (quote.pickup_location or '').split(', ')
-    dropoff_parts = (quote.dropoff_location or '').split(', ')
-
-    pickup_address = pickup_parts[0] if len(pickup_parts) > 0 else ''
-    pickup_city = pickup_parts[1] if len(pickup_parts) > 1 else ''
-    pickup_country = pickup_parts[2] if len(pickup_parts) > 2 else ''
-
-    dropoff_address = dropoff_parts[0] if len(dropoff_parts) > 0 else ''
-    dropoff_city = dropoff_parts[1] if len(dropoff_parts) > 1 else ''
-    dropoff_country = dropoff_parts[2] if len(dropoff_parts) > 2 else ''
-
-    # Defensive: ensure pickup_country and dropoff_country are valid keys
-    countries = list(EAST_AFRICAN_CITIES.keys())
-    if pickup_country not in EAST_AFRICAN_CITIES:
-        pickup_country = ''
-        pickup_city = ''
-    elif pickup_city not in EAST_AFRICAN_CITIES[pickup_country]:
-        pickup_city = ''
-    if dropoff_country not in EAST_AFRICAN_CITIES:
-        dropoff_country = ''
-        dropoff_city = ''
-    elif dropoff_city not in EAST_AFRICAN_CITIES[dropoff_country]:
-        dropoff_city = ''
-
-    return render_template('admin/edit_quote.html',
-                         quote=quote,
-                         pickup_address=pickup_address,
-                         pickup_city=pickup_city,
-                         pickup_country=pickup_country,
-                         dropoff_address=dropoff_address,
-                         dropoff_city=dropoff_city,
-                         dropoff_country=dropoff_country,
-                         now=datetime.now(),
-                         countries=countries,
-                         EAST_AFRICAN_CITIES=EAST_AFRICAN_CITIES)
-
-@app.route('/admin/mark_reviewed/<int:quote_id>', methods=['POST'])
-def mark_reviewed(quote_id):
-    quote = QuoteRequest.query.get_or_404(quote_id)
-    try:
-        quote.reviewed = not quote.reviewed
-        db.session.commit()
-        return jsonify({'success': True, 'reviewed': quote.reviewed})
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({'success': False, 'error': str(e)})
-
-@app.route('/admin/delete-quote/<int:id>', methods=['POST'])
-def delete_quote(id):
-    quote = QuoteRequest.query.get_or_404(id)
-    try:
-        db.session.delete(quote)
-        db.session.commit()
-        flash('Quote deleted successfully!', 'success')
-    except Exception as e:
-        db.session.rollback()
-        flash(f'Error deleting quote: {str(e)}', 'error')
-    return redirect(url_for('admin_dashboard'))
-
-# Remove or comment out the /admin_login route and any related logic
-# @app.route('/admin_login', methods=['GET', 'POST'])
-# def admin_login():
-#     ...
-
 if __name__ == '__main__':
-    app.run(debug=True, port=10000)
+    app.run(debug=True)

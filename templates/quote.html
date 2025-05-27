@@ -1022,6 +1022,9 @@
 {% block extra_js %}
 <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 <script>
+// Initialize cities data from server
+const EAST_AFRICAN_CITIES_DATA = JSON.parse('{{ EAST_AFRICAN_CITIES|tojson|safe }}');
+
 let map = null;
 let popupMap = null;
 let pickupMarker = null;
@@ -1029,7 +1032,7 @@ let dropoffMarker = null;
 let routeLine = null;
 let tempMarker = null;
 let currentLocationSelection = null;
-let EAST_AFRICAN_CITIES = null;
+let EAST_AFRICAN_CITIES = EAST_AFRICAN_CITIES_DATA;
 let currentRouteType = 'air';
 
 // Add these variables to track selected cities
@@ -1039,9 +1042,6 @@ let selectedDropoffCity = null;
 // Initialize everything when the document is ready
 document.addEventListener('DOMContentLoaded', function() {
     try {
-        // Initialize cities data
-        EAST_AFRICAN_CITIES = JSON.parse(document.getElementById('mapPopup').dataset.cities);
-        
         // Initialize main map
         initializeMainMap();
         
