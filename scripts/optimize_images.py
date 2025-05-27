@@ -6,8 +6,11 @@ def optimize_image(input_path, output_path, max_width=None, max_height=None, qua
     """Optimize and resize an image."""
     try:
         with Image.open(input_path) as img:
-            # Convert to RGB if necessary
+            # Preserve transparency for PNG files
             if img.mode in ('RGBA', 'P'):
+                # Keep the original mode for PNG files
+                img = img.convert('RGBA')
+            else:
                 img = img.convert('RGB')
             
             # Calculate new dimensions while maintaining aspect ratio
@@ -23,8 +26,8 @@ def optimize_image(input_path, output_path, max_width=None, max_height=None, qua
                     height = max_height
                 img = img.resize((width, height), Image.Resampling.LANCZOS)
             
-            # Save as WebP
-            img.save(output_path, 'WEBP', quality=quality, method=6)
+            # Save as WebP with transparency support
+            img.save(output_path, 'WEBP', quality=quality, method=6, lossless=False)
             print(f"Optimized: {output_path}")
     except Exception as e:
         print(f"Error processing {input_path}: {str(e)}")
